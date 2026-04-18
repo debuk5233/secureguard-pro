@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecureGuard Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & TOKENS ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0d1b2a;--navy2:#1a3c5e;--navy3:#1e4d7b;
+  --gold:#f0a500;--gold2:#ffc840;
+  --teal:#00b4d8;--teal2:#0077b6;
+  --red:#e63946;--green:#2dc653;--amber:#fca311;
+  --gray1:#f8f9fa;--gray2:#e9ecef;--gray3:#dee2e6;
+  --gray4:#adb5bd;--gray5:#6c757d;--gray6:#343a40;
+  --white:#ffffff;
+  --shadow:0 4px 24px rgba(0,0,0,0.15);
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.1);
+  --radius:10px;--radius-lg:16px;
+  --font:'Barlow',sans-serif;
+  --font-display:'Barlow Condensed',sans-serif;
+  --sidebar-w:260px;
+  --topbar-h:64px;
+  --transition:0.2s ease;
+}
+body{font-family:var(--font);background:var(--gray1);color:var(--navy);min-height:100vh;overflow-x:hidden}
+button{cursor:pointer;font-family:var(--font)}
+input,select,textarea{font-family:var(--font)}
+a{text-decoration:none;color:inherit}
+
+/* ── LOGIN PAGE ─────────────────────────────────────────── */
+#loginPage{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 50%,var(--navy3) 100%);
+  position:relative;overflow:hidden;
+}
+#loginPage::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.login-card{
+  background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:var(--radius-lg);padding:48px;width:420px;
+  position:relative;z-index:1;
+}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .shield{font-size:48px;display:block;margin-bottom:8px}
+.login-logo h1{font-family:var(--font-display);font-size:32px;color:var(--white);letter-spacing:2px;font-weight:700}
+.login-logo p{color:rgba(255,255,255,0.5);font-size:13px;letter-spacing:1px;text-transform:uppercase}
+.login-form label{display:block;color:rgba(255,255,255,0.7);font-size:12px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;font-weight:500}
+.login-form input{
+  width:100%;padding:12px 16px;border-radius:8px;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+  color:var(--white);font-size:15px;margin-bottom:20px;
+  transition:var(--transition);
+}
+.login-form input:focus{outline:none;border-color:var(--gold);background:rgba(255,255,255,0.12)}
+.login-form input::placeholder{color:rgba(255,255,255,0.3)}
+.btn-login{
+  width:100%;padding:14px;border:none;border-radius:8px;
+  background:var(--gold);color:var(--navy);font-size:15px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;
+  transition:var(--transition);
+}
+.btn-login:hover{background:var(--gold2);transform:translateY(-1px)}
+.login-error{color:#ff6b6b;font-size:13px;text-align:center;margin-top:12px;display:none}
+.login-footer{text-align:center;margin-top:24px;color:rgba(255,255,255,0.3);font-size:12px}
+
+/* ── APP LAYOUT ─────────────────────────────────────────── */
+#app{display:none;height:100vh;overflow:hidden}
+.layout{display:grid;grid-template-columns:var(--sidebar-w) 1fr;height:100vh}
+
+/* ── SIDEBAR ────────────────────────────────────────────── */
+.sidebar{
+  background:var(--navy);display:flex;flex-direction:column;
+  height:100vh;overflow-y:auto;position:relative;z-index:100;
+}
+.sidebar-brand{
+  padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.08);
+  display:flex;align-items:center;gap:12px;
+}
+.sidebar-brand .brand-icon{font-size:28px}
+.sidebar-brand-text h2{font-family:var(--font-display);font-size:18px;color:var(--white);letter-spacing:1px;line-height:1.1}
+.sidebar-brand-text span{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase}
+.sidebar-user{
+  padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;gap:10px;
+}
+.user-avatar{
+  width:36px;height:36px;border-radius:50%;background:var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:14px;color:var(--navy);flex-shrink:0;
+}
+.user-info .user-name{color:var(--white);font-size:13px;font-weight:600}
+.user-info .user-role{color:rgba(255,255,255,0.4);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.sidebar-nav{padding:12px 0;flex:1}
+.nav-section{padding:4px 0}
+.nav-section-label{
+  padding:8px 24px 4px;font-size:10px;color:rgba(255,255,255,0.3);
+  letter-spacing:2px;text-transform:uppercase;font-weight:600;
+}
+.nav-item{
+  display:flex;align-items:center;gap:12px;padding:10px 24px;
+  color:rgba(255,255,255,0.55);font-size:14px;font-weight:500;
+  transition:var(--transition);cursor:pointer;position:relative;
+}
+.nav-item:hover{color:var(--white);background:rgba(255,255,255,0.05)}
+.nav-item.active{color:var(--white);background:rgba(240,165,0,0.15)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);border-radius:0 2px 2px 0}
+.nav-item .nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-footer{padding:16px 24px;border-top:1px solid rgba(255,255,255,0.06)}
+.btn-logout{
+  width:100%;padding:10px;border:1px solid rgba(255,255,255,0.15);
+  background:transparent;color:rgba(255,255,255,0.6);border-radius:8px;
+  font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:var(--transition);
+}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+/* ── MAIN AREA ──────────────────────────────────────────── */
+.main{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{
+  height:var(--topbar-h);background:var(--white);border-bottom:1px solid var(--gray3);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;flex-shrink:0;
+}
+.topbar-title h2{font-family:var(--font-display);font-size:22px;color:var(--navy);font-weight:700;letter-spacing:0.5px}
+.topbar-title p{font-size:13px;color:var(--gray5)}
+.topbar-actions{display:flex;align-items:center;gap:12px}
+.content{flex:1;overflow-y:auto;padding:28px 32px}
+
+/* ── BUTTONS ─────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 18px;border-radius:8px;font-size:14px;font-weight:600;
+  border:none;transition:var(--transition);
+}
+.btn-primary{background:var(--navy2);color:var(--white)}
+.btn-primary:hover{background:var(--navy3)}
+.btn-gold{background:var(--gold);color:var(--navy)}
+.btn-gold:hover{background:var(--gold2)}
+.btn-danger{background:var(--red);color:var(--white)}
+.btn-danger:hover{background:#c1121f}
+.btn-success{background:var(--green);color:var(--white)}
+.btn-success:hover{opacity:0.9}
+.btn-outline{background:transparent;border:1.5px solid var(--gray3);color:var(--navy)}
+.btn-outline:hover{border-color:var(--navy2);background:var(--gray1)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-icon{padding:8px;border-radius:6px}
+
+/* ── STAT CARDS ─────────────────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{
+  background:var(--white);border-radius:var(--radius-lg);padding:20px 24px;
+  border:1px solid var(--gray3);position:relative;overflow:hidden;
+}
+.stat-card::after{
+  content:'';position:absolute;right:-10px;top:-10px;width:70px;height:70px;
+  border-radius:50%;opacity:0.08;
+}
+.stat-card.navy::after{background:var(--navy2)}
+.stat-card.gold::after{background:var(--gold)}
+.stat-card.teal::after{background:var(--teal)}
+.stat-card.green::after{background:var(--green)}
+.stat-card.red::after{background:var(--red)}
+.stat-card.amber::after{background:var(--amber)}
+.stat-label{font-size:12px;color:var(--gray5);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.stat-number{font-family:var(--font-display);font-size:40px;font-weight:700;color:var(--navy);line-height:1;margin:4px 0}
+.stat-card.gold .stat-number{color:var(--gold)}
+.stat-card.teal .stat-number{color:var(--teal2)}
+.stat-card.green .stat-number{color:var(--green)}
+.stat-card.red .stat-number{color:var(--red)}
+.stat-card.amber .stat-number{color:var(--amber)}
+.stat-sub{font-size:12px;color:var(--gray5)}
+.stat-icon{font-size:28px;margin-bottom:8px}
+
+/* ── DATA TABLE ─────────────────────────────────────────── */
+.card{background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--gray3);overflow:hidden}
+.card-header{
+  padding:16px 24px;border-bottom:1px solid var(--gray3);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--navy)}
+.card-body{padding:0}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--gray1)}
+th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--gray5);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--gray3);white-space:nowrap}
+td{padding:11px 16px;font-size:13px;color:var(--navy);border-bottom:1px solid var(--gray2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--gray1)}
+.empty-state{text-align:center;padding:48px;color:var(--gray5)}
+.empty-state .empty-icon{font-size:40px;margin-bottom:12px}
+
+/* ── BADGES ─────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px}
+.badge-active,.badge-present,.badge-scheduled{background:#d4f4dd;color:#1a7a30}
+.badge-inactive,.badge-absent{background:#fde8e8;color:#a01010}
+.badge-day{background:#fff3cd;color:#856404}
+.badge-night{background:#e8e0ff;color:#3d1a8e}
+.badge-commander{background:#dde8ff;color:#1a3e8e}
+.badge-guard{background:#e0f7fa;color:#006064}
+.badge-manager{background:#fff3e0;color:#8d4000}
+.badge-admin{background:#fce4ec;color:#7b003b}
+.badge-generated,.badge-pending{background:#fff3cd;color:#7a5200}
+.badge-paid{background:#d4f4dd;color:#1a7a30}
+
+/* ── MODAL ───────────────────────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--white);border-radius:var(--radius-lg);
+  width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;
+  box-shadow:var(--shadow);animation:slideUp 0.2s ease;
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{
+  padding:20px 24px;border-bottom:1px solid var(--gray3);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-title{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--navy)}
+.modal-close{background:none;border:none;font-size:22px;color:var(--gray5);cursor:pointer;line-height:1}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--gray3);display:flex;gap:10px;justify-content:flex-end}
+
+/* ── FORMS ───────────────────────────────────────────────── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-size:12px;font-weight:600;color:var(--gray5);text-transform:uppercase;letter-spacing:0.5px}
+.form-group input,.form-group select,.form-group textarea{
+  padding:10px 14px;border:1.5px solid var(--gray3);border-radius:8px;
+  font-size:14px;color:var(--navy);transition:var(--transition);
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+  outline:none;border-color:var(--navy2);
+}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-hint{font-size:11px;color:var(--gray5)}
+
+/* ── SEARCH BAR ─────────────────────────────────────────── */
+.search-bar{
+  display:flex;align-items:center;gap:8px;padding:8px 14px;
+  border:1.5px solid var(--gray3);border-radius:8px;background:var(--white);
+}
+.search-bar input{border:none;outline:none;font-size:14px;color:var(--navy);width:200px}
+.search-bar span{color:var(--gray5);font-size:14px}
+
+/* ── ALERTS ─────────────────────────────────────────────── */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+.alert.show{display:block}
+.alert-success{background:#d4f4dd;color:#1a5c2a;border:1px solid #a8d5b5}
+.alert-error{background:#fde8e8;color:#7a1010;border:1px solid #f0b3b3}
+
+/* ── TABS ────────────────────────────────────────────────── */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--gray3);margin-bottom:24px}
+.tab{
+  padding:10px 20px;font-size:14px;font-weight:600;color:var(--gray5);
+  cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;
+  transition:var(--transition);
+}
+.tab.active{color:var(--navy2);border-bottom-color:var(--navy2)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── ATTENDANCE GRID ─────────────────────────────────────── */
+.att-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.att-card{
+  background:var(--white);border:1.5px solid var(--gray3);border-radius:var(--radius);
+  padding:14px;display:flex;align-items:center;gap:12px;
+}
+.att-card.present{border-color:var(--green)}
+.att-card.absent{border-color:var(--red)}
+.att-name{font-size:13px;font-weight:600;color:var(--navy)}
+.att-shift{font-size:11px;color:var(--gray5)}
+.att-toggle{margin-left:auto}
+
+/* ── SCHEDULE CALENDAR ───────────────────────────────────── */
+.schedule-header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.schedule-date-nav{display:flex;align-items:center;gap:8px}
+.schedule-date-nav button{background:none;border:1.5px solid var(--gray3);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px}
+.schedule-date-display{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--navy);min-width:140px;text-align:center}
+.shift-section{margin-bottom:24px}
+.shift-label{
+  display:flex;align-items:center;gap:8px;margin-bottom:12px;
+  font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--navy);
+}
+
+/* ── PAYROLL ─────────────────────────────────────────────── */
+.payroll-summary{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;
+}
+.pay-card{
+  background:var(--white);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--gray3);text-align:center;
+}
+.pay-card .pay-num{font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--navy2)}
+.pay-card .pay-label{font-size:12px;color:var(--gray5);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+/* ── LOADING ─────────────────────────────────────────────── */
+.loading{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:40px;color:var(--gray5);font-size:14px;
+}
+.spinner{
+  width:20px;height:20px;border:2px solid var(--gray3);
+  border-top-color:var(--navy2);border-radius:50%;
+  animation:spin 0.8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TOAST ───────────────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:28px;right:28px;z-index:9999;
+  background:var(--navy);color:var(--white);padding:12px 20px;
+  border-radius:10px;font-size:14px;font-weight:500;
+  box-shadow:var(--shadow);transform:translateY(80px);opacity:0;
+  transition:all 0.3s ease;pointer-events:none;
+}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.success{background:var(--green)}
+#toast.error{background:var(--red)}
+
+/* ── DASHBOARD TODAY SCHEDULE ────────────────────────────── */
+.today-schedule-item{
+  display:flex;align-items:center;gap:12px;padding:10px 0;
+  border-bottom:1px solid var(--gray2);
+}
+.today-schedule-item:last-child{border-bottom:none}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .form-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ LOGIN ═════════════════════════════════ -->
+<div id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="shield">🛡️</span>
+      <h1>SECUREGUARD</h1>
+      <p>Professional Security Management</p>
+    </div>
+    <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="Enter username" required autocomplete="username">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Enter password" required autocomplete="current-password">
+      <button type="submit" class="btn-login" id="loginBtn">Sign In</button>
+      <div class="login-error" id="loginError">Invalid username or password</div>
+    </form>
+    <div class="login-footer">SecureGuard Pro v1.0 &nbsp;|&nbsp; Powered by Google Sheets</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ APP ══════════════════════════════════ -->
+<div id="app">
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-icon">🛡️</span>
+        <div class="sidebar-brand-text">
+          <h2>SECUREGUARD</h2>
+          <span>PRO MANAGEMENT</span>
+        </div>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sideUserAvatar">A</div>
+        <div class="user-info">
+          <div class="user-name" id="sideUserName">Admin User</div>
+          <div class="user-role" id="sideUserRole">Administrator</div>
+        </div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-label">Overview</div>
+          <div class="nav-item active" data-page="dashboard">
+            <span class="nav-icon">📊</span> Dashboard
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Personnel</div>
+          <div class="nav-item" data-page="guards">
+            <span class="nav-icon">👮</span> Guards
+          </div>
+          <div class="nav-item" data-page="commanders">
+            <span class="nav-icon">⭐</span> Commanders
+          </div>
+          <div class="nav-item" data-page="clients">
+            <span class="nav-icon">🏢</span> Clients
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Operations</div>
+          <div class="nav-item" data-page="schedule">
+            <span class="nav-icon">📅</span> Deployment Rota
+          </div>
+          <div class="nav-item" data-page="attendance">
+            <span class="nav-icon">✅</span> Attendance
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Finance</div>
+          <div class="nav-item" data-page="payroll">
+            <span class="nav-icon">💰</span> Payroll
+          </div>
+          <div class="nav-item nav-admin" data-page="salaryScale">
+            <span class="nav-icon">📋</span> Salary Scale
+          </div>
+        </div>
+        <div class="nav-section nav-admin">
+          <div class="nav-section-label">Administration</div>
+          <div class="nav-item" data-page="users">
+            <span class="nav-icon">👤</span> User Accounts
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <button class="btn-logout" onclick="handleLogout()">
+          <span>🚪</span> Sign Out
+        </button>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">Good morning — here's today's overview</p>
+        </div>
+        <div class="topbar-actions">
+          <div id="topbarDate" style="font-size:13px;color:var(--gray5)"></div>
+        </div>
+      </div>
+      <div class="content" id="mainContent">
+        <!-- Pages load here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════ MODALS ══════════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add Record</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// CONFIGURATION — PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
+// ═══════════════════════════════════════════════════════════════════════
+const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+// ═══════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════
+let currentUser = null;
+let currentPage = 'dashboard';
+let cachedData = {};
+
+const ROLES = {
+  admin: { label: 'Administrator', can: ['all'] },
+  manager: { label: 'Manager', can: ['dashboard','guards','commanders','clients','schedule','attendance','payroll','salaryScale'] },
+  supervisor: { label: 'Supervisor', can: ['dashboard','guards','schedule','attendance'] },
+  viewer: { label: 'Viewer', can: ['dashboard','guards','clients'] }
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+// API
+// ═══════════════════════════════════════════════════════════════════════
+async function api(action, data = {}) {
+  const payload = { action, username: currentUser?.username, ...data };
+  const res = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: { 'Content-Type': 'text/plain' }
+  });
+  return await res.json();
+}
+
+// Demo mode when no URL configured
+function isDemoMode() {
+  return SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+}
+
+function demoData(action) {
+  const guards = [
+    {ID:'SGP001',FullName:'John Mukasa',Phone:'0772000001',NIN:'CM123456',Age:28,Gender:'Male',Residence:'Kampala',Status:'active',CommanderID:'CMD001'},
+    {ID:'SGP002',FullName:'Sarah Nakato',Phone:'0772000002',NIN:'CF234567',Age:25,Gender:'Female',Residence:'Wakiso',Status:'active',CommanderID:'CMD001'},
+    {ID:'SGP003',FullName:'Patrick Onen',Phone:'0772000003',NIN:'CM345678',Age:32,Gender:'Male',Residence:'Mukono',Status:'active',CommanderID:'CMD002'},
+    {ID:'SGP004',FullName:'Grace Atim',Phone:'0772000004',NIN:'CF456789',Age:27,Gender:'Female',Residence:'Entebbe',Status:'inactive'},
+  ];
+  const commanders = [
+    {ID:'CMD001',FullName:'Col. Robert Byaruhanga',Phone:'0772100001',NIN:'CM100001',Age:45,Gender:'Male',Residence:'Kampala',Status:'active'},
+    {ID:'CMD002',FullName:'Maj. Agnes Nansubuga',Phone:'0772100002',NIN:'CF100002',Age:38,Gender:'Female',Residence:'Kampala',Status:'active'},
+  ];
+  const clients = [
+    {ID:'CLT001',CompanyName:'Kampala Mall Ltd',ContactPerson:'Peter Ssali',Phone:'0772200001',Email:'peter@kmall.co.ug',Address:'Kampala Rd',ContractStart:'2024-01-01',ContractEnd:'2024-12-31',Status:'active'},
+    {ID:'CLT002',CompanyName:'Stanbic Bank Uganda',ContactPerson:'Mary Nabatanzi',Phone:'0772200002',Email:'mary@stanbic.co.ug',Address:'Speke Rd',ContractStart:'2024-03-01',ContractEnd:'2025-02-28',Status:'active'},
+    {ID:'CLT003',CompanyName:'Nile Hotel',ContactPerson:'James Okello',Phone:'0772200003',Email:'james@nile.co.ug',Address:'Nile Ave',ContractStart:'2024-02-01',ContractEnd:'2024-11-30',Status:'active'},
+  ];
+  const today = new Date().toISOString().split('T')[0];
+  const schedule = [
+    {ID:'SCH001',GuardID:'SGP001',GuardName:'John Mukasa',ClientID:'CLT001',ClientName:'Kampala Mall Ltd',Date:today,Shift:'day',Status:'scheduled'},
+    {ID:'SCH002',GuardID:'SGP002',GuardName:'Sarah Nakato',ClientID:'CLT002',ClientName:'Stanbic Bank Uganda',Date:today,Shift:'day',Status:'scheduled'},
+    {ID:'SCH003',GuardID:'SGP003',GuardName:'Patrick Onen',ClientID:'CLT001',ClientName:'Kampala Mall Ltd',Date:today,Shift:'night',Status:'scheduled'},
+  ];
+  const attendance = [
+    {ID:'ATT001',GuardID:'SGP001',GuardName:'John Mukasa',Date:today,Shift:'day',CheckIn:'07:00',CheckOut:'',Status:'present',Notes:'',MarkedBy:'admin'},
+    {ID:'ATT002',GuardID:'SGP002',GuardName:'Sarah Nakato',Date:today,Shift:'day',CheckIn:'07:05',CheckOut:'',Status:'present',Notes:'',MarkedBy:'admin'},
+  ];
+  const payroll = [];
+  const salaryScale = [{Rank:'commander',DailyRate:45000,MonthlyBase:1350000},{Rank:'guard',DailyRate:30000,MonthlyBase:900000}];
+  const users = [
+    {ID:'USR001',Username:'admin',FullName:'System Administrator',Role:'admin',Email:'admin@secureguard.com',Active:true},
+    {ID:'USR002',Username:'manager',FullName:'Operations Manager',Role:'manager',Email:'manager@secureguard.com',Active:true},
+    {ID:'USR003',Username:'supervisor',FullName:'Field Supervisor',Role:'supervisor',Email:'supervisor@secureguard.com',Active:true},
+  ];
+
+  const map = {
+    getGuards:{success:true,data:guards},
+    getCommanders:{success:true,data:commanders},
+    getClients:{success:true,data:clients},
+    getSchedule:{success:true,data:schedule},
+    getAttendance:{success:true,data:attendance},
+    getPayroll:{success:true,data:payroll},
+    getSalaryScale:{success:true,data:salaryScale},
+    getUsers:{success:true,data:users},
+    getDashboard:{success:true,data:{
+      totalGuards:guards.filter(g=>g.Status==='active').length,
+      totalCommanders:commanders.filter(c=>c.Status==='active').length,
+      totalClients:clients.filter(c=>c.Status==='active').length,
+      onDutyToday:attendance.filter(a=>a.Status==='present').length,
+      todayDeployment:schedule.length,
+      todayDayShift:schedule.filter(s=>s.Shift==='day').length,
+      todayNightShift:schedule.filter(s=>s.Shift==='night').length,
+      recentSchedule:schedule
+    }}
+  };
+  return map[action] || {success:true,data:[]};
+}
+
+async function call(action, data = {}) {
+  if (isDemoMode()) {
+    await new Promise(r => setTimeout(r, 300));
+    const res = demoData(action, data);
+    // Cache data
+    if (res.success && res.data) cachedData[action] = res.data;
+    return res;
+  }
+  try {
+    const res = await api(action, data);
+    if (res.success && res.data) cachedData[action] = res.data;
+    return res;
+  } catch(e) {
+    showToast('Connection error: ' + e.message, 'error');
+    return { success: false, error: e.message };
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════════════════════
+const DEMO_USERS = [
+  {username:'admin',password:'admin123',fullName:'System Administrator',role:'admin',id:'USR001'},
+  {username:'manager',password:'manager123',fullName:'Operations Manager',role:'manager',id:'USR002'},
+  {username:'supervisor',password:'supervisor123',fullName:'Field Supervisor',role:'supervisor',id:'USR003'},
+];
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const btn = document.getElementById('loginBtn');
+  btn.textContent = 'Signing in...'; btn.disabled = true;
+
+  let user = null;
+  if (isDemoMode()) {
+    user = DEMO_USERS.find(u => u.username === username && u.password === password);
+    if (user) {
+      currentUser = user;
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+      btn.textContent = 'Sign In'; btn.disabled = false;
+      return;
+    }
+  } else {
+    const res = await call('login', { username, password });
+    if (res.success) {
+      currentUser = res.user;
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+      btn.textContent = 'Sign In'; btn.disabled = false;
+      return;
+    }
+  }
+
+  sessionStorage.setItem('sgpUser', JSON.stringify(currentUser));
+  startApp();
+}
+
+function handleLogout() {
+  sessionStorage.removeItem('sgpUser');
+  currentUser = null;
+  cachedData = {};
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// APP INIT
+// ═══════════════════════════════════════════════════════════════════════
+function startApp() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  // Set user info
+  document.getElementById('sideUserName').textContent = currentUser.fullName;
+  document.getElementById('sideUserRole').textContent = ROLES[currentUser.role]?.label || currentUser.role;
+  document.getElementById('sideUserAvatar').textContent = currentUser.fullName.charAt(0).toUpperCase();
+
+  // Set date
+  document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-UG',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('pageSubtitle').textContent = `Welcome back, ${currentUser.fullName.split(' ')[0]}`;
+
+  // Apply role restrictions
+  applyRoleRestrictions();
+
+  // Nav
+  document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+    item.addEventListener('click', () => navigateTo(item.dataset.page));
+  });
+
+  navigateTo('dashboard');
+}
+
+function applyRoleRestrictions() {
+  const role = currentUser.role;
+  const allowed = ROLES[role]?.can || [];
+  if (!allowed.includes('all')) {
+    document.querySelectorAll('.nav-admin').forEach(el => {
+      if (!allowed.includes('users')) el.style.display = 'none';
+    });
+  }
+}
+
+function canAccess(page) {
+  const role = currentUser.role;
+  const can = ROLES[role]?.can || [];
+  return can.includes('all') || can.includes(page);
+}
+
+function navigateTo(page) {
+  if (!canAccess(page)) { showToast('Access denied', 'error'); return; }
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.dataset.page === page));
+  const titles = {
+    dashboard:'Dashboard', guards:'Guards', commanders:'Commanders',
+    clients:'Clients', schedule:'Deployment Rota', attendance:'Attendance',
+    payroll:'Payroll', salaryScale:'Salary Scale', users:'User Accounts'
+  };
+  document.getElementById('pageTitle').textContent = titles[page] || page;
+  renderPage(page);
+}
+
+function renderPage(page) {
+  const content = document.getElementById('mainContent');
+  content.innerHTML = '<div class="loading"><div class="spinner"></div> Loading...</div>';
+  const pages = {
+    dashboard: renderDashboard,
+    guards: renderGuards,
+    commanders: renderCommanders,
+    clients: renderClients,
+    schedule: renderSchedule,
+    attendance: renderAttendance,
+    payroll: renderPayroll,
+    salaryScale: renderSalaryScale,
+    users: renderUsers,
+  };
+  if (pages[page]) pages[page]();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════
+async function renderDashboard() {
+  const res = await call('getDashboard');
+  const d = res.data || {};
+  const content = document.getElementById('mainContent');
+  content.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card navy">
+        <div class="stat-icon">👮</div>
+        <div class="stat-label">Active Guards</div>
+        <div class="stat-number">${d.totalGuards||0}</div>
+        <div class="stat-sub">Total security personnel</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-label">Commanders</div>
+        <div class="stat-number">${d.totalCommanders||0}</div>
+        <div class="stat-sub">Field commanders</div>
+      </div>
+      <div class="stat-card teal">
+        <div class="stat-icon">🏢</div>
+        <div class="stat-label">Clients</div>
+        <div class="stat-number">${d.totalClients||0}</div>
+        <div class="stat-sub">Active contracts</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">✅</div>
+        <div class="stat-label">On Duty Today</div>
+        <div class="stat-number">${d.onDutyToday||0}</div>
+        <div class="stat-sub">Checked in today</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-icon">☀️</div>
+        <div class="stat-label">Day Shift</div>
+        <div class="stat-number">${d.todayDayShift||0}</div>
+        <div class="stat-sub">Deployed today</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon">🌙</div>
+        <div class="stat-label">Night Shift</div>
+        <div class="stat-number">${d.todayNightShift||0}</div>
+        <div class="stat-sub">Deployed tonight</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📅 Today's Deployment — ${new Date().toLocaleDateString('en-UG',{weekday:'long',day:'numeric',month:'long'})}</div>
+        <button class="btn btn-outline btn-sm" onclick="navigateTo('schedule')">Full Rota →</button>
+      </div>
+      <div class="card-body">
+        ${(d.recentSchedule||[]).length === 0
+          ? '<div class="empty-state"><div class="empty-icon">📅</div><div>No deployments scheduled for today</div></div>'
+          : `<div class="table-wrap"><table>
+            <thead><tr><th>Guard</th><th>Client/Site</th><th>Shift</th><th>Status</th></tr></thead>
+            <tbody>${(d.recentSchedule||[]).map(s=>`
+              <tr>
+                <td><strong>${s.GuardName}</strong></td>
+                <td>${s.ClientName}</td>
+                <td><span class="badge badge-${s.Shift}">${s.Shift==='day'?'☀️ Day':'🌙 Night'}</span></td>
+                <td><span class="badge badge-${s.Status}">${s.Status}</span></td>
+              </tr>`).join('')}
+            </tbody></table></div>`
+        }
+      </div>
+    </div>
+    ${isDemoMode()?'<div style="margin-top:16px;padding:12px 16px;background:#fff3cd;border-radius:8px;font-size:13px;color:#856404;border:1px solid #ffd369"><strong>⚠️ Demo Mode:</strong> Connect your Google Apps Script URL in the SCRIPT_URL constant to use real data. Default credentials: admin/admin123, manager/manager123, supervisor/supervisor123</div>':''}
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// GUARDS
+// ═══════════════════════════════════════════════════════════════════════
+async function renderGuards() {
+  const res = await call('getGuards');
+  const cmdRes = await call('getCommanders');
+  const guards = res.data || [];
+  const commanders = cmdRes.data || [];
+  const cmdMap = {};
+  commanders.forEach(c => cmdMap[c.ID] = c.FullName);
+
+  const content = document.getElementById('mainContent');
+  content.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="guardSearch" placeholder="Search guards..." oninput="filterTable('guardSearch','guardTbody')">
+      </div>
+      ${canAccess('guards') && (currentUser.role==='admin'||currentUser.role==='manager') ?
+        `<button class="btn btn-primary" onclick="showGuardModal()">+ Add Guard</button>` : ''}
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">👮 Guards Registry <span style="font-size:13px;font-weight:400;color:var(--gray5)">(${guards.length} records)</span></div>
+      </div>
+      <div class="card-body table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Full Name</th><th>Phone</th><th>NIN</th><th>Age</th><th>Gender</th><th>Residence</th><th>Commander</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="guardTbody">
+            ${guards.length===0
+              ? '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">👮</div>No guards found</div></td></tr>'
+              : guards.map((g,i)=>`
+              <tr>
+                <td>${i+1}</td>
+                <td><strong>${g.FullName}</strong></td>
+                <td>${g.Phone}</td>
+                <td><code style="font-size:11px;background:var(--gray1);padding:2px 6px;border-radius:4px">${g.NIN}</code></td>
+                <td>${g.Age}</td>
+                <td>${g.Gender}</td>
+                <td>${g.Residence}</td>
+                <td>${cmdMap[g.CommanderID]||'—'}</td>
+                <td><span class="badge badge-${g.Status}">${g.Status}</span></td>
+                <td>
+                  <div style="display:flex;gap:4px">
+                    <button class="btn btn-outline btn-sm btn-icon" onclick='showGuardModal(${JSON.stringify(g)})' title="Edit">✏️</button>
+                    ${currentUser.role==='admin'?`<button class="btn btn-danger btn-sm btn-icon" onclick="deleteGuard('${g.ID}')" title="Delete">🗑️</button>`:''}
+                  </div>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  window._guards = guards;
+  window._commanders = commanders;
+}
+
+function showGuardModal(guard = null) {
+  const commanders = window._commanders || [];
+  const isEdit = !!guard;
+  document.getElementById('modalTitle').textContent = isEdit ? 'Edit Guard' : 'Add New Guard';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="form-grid">
+      <div class="form-group full"><label>Full Name</label><input type="text" id="gName" value="${guard?.FullName||''}" placeholder="First and last name" required></div>
+      <div class="form-group"><label>Phone Number</label><input type="tel" id="gPhone" value="${guard?.Phone||''}" placeholder="07XXXXXXXX"></div>
+      <div class="form-group"><label>National ID (NIN)</label><input type="text" id="gNIN" value="${guard?.NIN||''}" placeholder="CM123456"></div>
+      <div class="form-group"><label>Age</label><input type="number" id="gAge" value="${guard?.Age||''}" min="18" max="65"></div>
+      <div class="form-group"><label>Gender</label>
+        <select id="gGender">
+          <option value="Male" ${guard?.Gender==='Male'?'selected':''}>Male</option>
+          <option value="Female" ${guard?.Gender==='Female'?'selected':''}>Female</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>Area of Residence</label><input type="text" id="gResidence" value="${guard?.Residence||''}" placeholder="e.g. Kampala, Wakiso"></div>
+      <div class="form-group"><label>Assign Commander</label>
+        <select id="gCommander">
+          <option value="">-- None --</option>
+          ${commanders.map(c=>`<option value="${c.ID}" ${guard?.CommanderID===c.ID?'selected':''}>${c.FullName}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Status</label>
+        <select id="gStatus">
+          <option value="active" ${guard?.Status==='active'?'selected':''}>Active</option>
+          <option value="inactive" ${guard?.Status==='inactive'?'selected':''}>Inactive</option>
+        </select>
+      </div>
+    </div>`;
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="${isEdit?`updateGuard('${guard.ID}')`:'addGuard()'}">
+      ${isEdit ? 'Save Changes' : 'Add Guard'}
+    </button>`;
+  openModal();
+}
+
+async function addGuard() {
+  const data = getGuardFormData();
+  if (!data) return;
+  const res = await call('addGuard', data);
+  if (res.success) { closeModal(); showToast('Guard added!','success'); renderGuards(); }
+  else showToast(res.error||'Error adding guard','error');
+}
+
+async function updateGuard(id) {
+  const data = getGuardFormData();
+  if (!data) return;
+  const res = await call('updateGuard', { id, ...data });
+  if (res.success) { closeModal(); showToast('Guard updated!','success'); renderGuards(); }
+  else showToast(res.error||'Error','error');
+}
+
+function getGuardFormData() {
+  const name = document.getElementById('gName').value.trim();
+  if (!name) { showToast('Full name is required','error'); return null; }
+  return {
+    fullName: name,
+    phone: document.getElementById('gPhone').value.trim(),
+    nin: document.getElementById('gNIN').value.trim(),
+    age: document.getElementById('gAge').value,
+    gender: document.getElementById('gGender').value,
+    residence: document.getElementById('gResidence').value.trim(),
+    commanderId: document.getElementById('gCommander').value,
+    status: document.getElementById('gStatus').value,
+  };
+}
+
+async function deleteGuard(id) {
+  if (!confirm('Delete this guard? This cannot be undone.')) return;
+  const res = await call('deleteGuard', { id });
+  if (res.success) { showToast('Guard deleted','success'); renderGuards(); }
+  else showToast(res.error||'Error','error');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// COMMANDERS
+// ═══════════════════════════════════════════════════════════════════════
+async function renderCommanders() {
+  const res = await call('getCommanders');
+  const commanders = res.data || [];
+  const content = document.getElementById('mainContent');
+  content.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="cmdSearch" placeholder="Search commanders..." oninput="filterTable('cmdSearch','cmdTbody')">
+      </div>
+      ${currentUser.role==='admin'||currentUser.role==='manager' ?
+        `<button class="btn btn-primary" onclick="showCommanderModal()">+ Add Commander</button>` : ''}
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">⭐ Commanders Registry <span style="font-size:13px;font-weight:400;color:var(--gray5)">(${commanders.length} records)</span></div></div>
+      <div class="card-body table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Full Name</th><th>Phone</th><th>NIN</th><th>Age</th><th>Gender</th><th>Residence</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="cmdTbody">
+            ${commanders.length===0
+              ? '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">⭐</div>No commanders found</div></td></tr>'
+              : commanders.map((c,i)=>`
+              <tr>
+                <td>${i+1}</td>
+                <td><strong>${c.FullName}</strong></td>
+                <td>${c.Phone}</td>
+                <td><code style="font-size:11px;background:var(--gray1);padding:2px 6px;border-radius:4px">${c.NIN}</code></td>
+                <td>${c.Age}</td>
+                <td>${c.Gender}</td>
+                <td>${c.Residence}</td>
+                <td><span class="badge badge-${c.Status}">${c.Status}</span></td>
+                <td>
+                  <div style="display:flex;gap:4px">
+                    <button class="btn btn-outline btn-sm btn-icon" onclick='showCommanderModal(${JSON.stringify(c)})'>✏️</button>
+                    ${currentUser.role==='admin'?`<button class="btn btn-danger btn-sm btn-icon" onclick="deleteCommander('${c.ID}')">🗑️</button>`:''}
+                  </div>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  window._commanders = commanders;
+}
+
+function showCommanderModal(cmd = null) {
+  const isEdit = !!cmd;
+  document.getElementById('modalTitle').textContent = isEdit ? 'Edit Commander' : 'Add Commander';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="form-grid">
+      <div class="form-group full"><label>Full Name</label><input type="text" id="cName" value="${cmd?.FullName||''}" placeholder="Full name with rank (e.g. Col. John Smith)"></div>
+      <div class="form-group"><label>Phone</label><input type="tel" id="cPhone" value="${cmd?.Phone||''}" placeholder="07XXXXXXXX"></div>
+      <div class="form-group"><label>NIN</label><input type="text" id="cNIN" value="${cmd?.NIN||''}" placeholder="CM123456"></div>
+      <div class="form-group"><label>Age</label><input type="number" id="cAge" value="${cmd?.Age||''}" min="25" max="65"></div>
+      <div class="form-group"><label>Gender</label>
+        <select id="cGender">
+          <option value="Male" ${cmd?.Gender==='Male'?'selected':''}>Male</option>
+          <option value="Female" ${cmd?.Gender==='Female'?'selected':''}>Female</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>Area of Residence</label><input type="text" id="cResidence" value="${cmd?.Residence||''}" placeholder="e.g. Kampala"></div>
+      <div class="form-group"><label>Status</label>
+        <select id="cStatus">
+          <option value="active" ${cmd?.Status==='active'?'selected':''}>Active</option>
+          <option value="inactive" ${cmd?.Status==='inactive'?'selected':''}>Inactive</option>
+        </select>
+      </div>
+    </div>`;
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="${isEdit?`updateCommander('${cmd.ID}')`:'addCommander()'}">
+      ${isEdit ? 'Save Changes' : 'Add Commander'}
+    </button>`;
+  openModal();
+}
+
+async function addCommander() {
+  const data = getCmdFormData(); if (!data) return;
+  const res = await call('addCommander', data);
+  if (res.success) { closeModal(); showToast('Commander added!','success'); renderCommanders(); }
+  else showToast(res.error||'Error','error');
+}
+
+async function updateCommander(id) {
+  const data = getCmdFormData(); if (!data) return;
+  const res = await call('updateCommander', { id, ...data });
+  if (res.success) { closeModal(); showToast('Commander updated!','success'); renderCommanders(); }
+  else showToast(res.error||'Error','error');
+}
+
+function getCmdFormData() {
+  const name = document.getElementById('cName').value.trim();
+  if (!name) { showToast('Full name required','error'); return null; }
+  return { fullName:name, phone:document.getElementById('cPhone').value, nin:document.getElementById('cNIN').value, age:document.getElementById('cAge').value, gender:document.getElementById('cGender').value, residence:document.getElementById('cResidence').value, status:document.getElementById('cStatus').value };
+}
+
+async function deleteCommander(id) {
+  if (!confirm('Delete this commander?')) return;
+  const res = await call('deleteCommander', { id });
+  if (res.success) { showToast('Deleted','success'); renderCommanders(); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CLIENTS
+// ═══════════════════════════════════════════════════════════════════════
+async function renderClients() {
+  const res = await call('getClients');
+  const clients = res.data || [];
+  const content = document.getElementById('mainContent');
+  content.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div class="search-bar"><span>🔍</span><input type="text" id="cliSearch" placeholder="Search clients..." oninput="filterTable('cliSearch','cliTbody')"></div>
+      ${currentUser.role==='admin'||currentUser.role==='manager' ?
+        `<button class="btn btn-primary" onclick="showClientModal()">+ Add Client</button>` : ''}
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">🏢 Clients Database <span style="font-size:13px;font-weight:400;color:var(--gray5)">(${clients.length} records)</span></div></div>
+      <div class="card-body table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Company</th><th>Contact</th><th>Phone</th><th>Email</th><th>Address</th><th>Contract Start</th><th>Contract End</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="cliTbody">
+            ${clients.length===0
+              ? '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">🏢</div>No clients found</div></td></tr>'
+              : clients.map((c,i)=>`
+              <tr>
+                <td>${i+1}</td>
+                <td><strong>${c.CompanyName}</strong></td>
+                <td>${c.ContactPerson}</td>
+                <td>${c.Phone}</td>
+                <td>${c.Email}</td>
+                <td>${c.Address}</td>
+                <td>${c.ContractStart}</td>
+                <td>${c.ContractEnd}</td>
+                <td><span class="badge badge-${c.Status}">${c.Status}</span></td>
+                <td>
+                  <div style="display:flex;gap:4px">
+                    <button class="btn btn-outline btn-sm btn-icon" onclick='showClientModal(${JSON.stringify(c)})'>✏️</button>
+                    ${currentUser.role==='admin'?`<button class="btn btn-danger btn-sm btn-icon" onclick="deleteClient('${c.ID}')">🗑️</button>`:''}
+                  </div>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  window._clients = clients;
+}
+
+function showClientModal(client = null) {
+  const isEdit = !!client;
+  document.getElementById('modalTitle').textContent = isEdit ? 'Edit Client' : 'Add New Client';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="form-grid">
+      <div class="form-group full"><label>Company Name</label><input type="text" id="clName" value="${client?.CompanyName||''}" placeholder="Company or organization name"></div>
+      <div class="form-group"><label>Contact Person</label><input type="text" id="clContact" value="${client?.ContactPerson||''}" placeholder="Primary contact name"></div>
+      <div class="form-group"><label>Phone</label><input type="tel" id="clPhone" value="${client?.Phone||''}" placeholder="07XXXXXXXX"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="clEmail" value="${client?.Email||''}" placeholder="email@company.com"></div>
+      <div class="form-group full"><label>Address</label><input type="text" id="clAddress" value="${client?.Address||''}" placeholder="Physical address"></div>
+      <div class="form-group"><label>Contract Start</label><input type="date" id="clStart" value="${client?.ContractStart||''}"></div>
+      <div class="form-group"><label>Contract End</label><input type="date" id="clEnd" value="${client?.ContractEnd||''}"></div>
+      <div class="form-group"><label>Status</label>
+        <select id="clStatus">
+          <option value="active" ${client?.Status==='active'?'selected':''}>Active</option>
+          <option value="inactive" ${client?.Status==='inactive'?'selected':''}>Inactive</option>
+        </select>
+      </div>
+    </div>`;
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="${isEdit?`updateClient('${client.ID}')`:'addClient()'}">
+      ${isEdit ? 'Save Changes' : 'Add Client'}
+    </button>`;
+  openModal();
+}
+
+async function addClient() {
+  const data = getClientFormData(); if (!data) return;
+  const res = await call('addClient', data);
+  if (res.success) { closeModal(); showToast('Client added!','success'); renderClients(); }
+  else showToast(res.error||'Error','error');
+}
+
+async function updateClient(id) {
+  const data = getClientFormData(); if (!data) return;
+  const res = await call('updateClient', { id, ...data });
+  if (res.success) { closeModal(); showToast('Client updated!','success'); renderClients(); }
+  else showToast(res.error||'Error','error');
+}
+
+function getClientFormData() {
+  const name = document.getElementById('clName').value.trim();
+  if (!name) { showToast('Company name required','error'); return null; }
+  return { companyName:name, contactPerson:document.getElementById('clContact').value, phone:document.getElementById('clPhone').value, email:document.getElementById('clEmail').value, address:document.getElementById('clAddress').value, contractStart:document.getElementById('clStart').value, contractEnd:document.getElementById('clEnd').value, status:document.getElementById('clStatus').value };
+}
+
+async function deleteClient(id) {
+  if (!confirm('Delete this client?')) return;
+  const res = await call('deleteClient', { id });
+  if (res.success) { showToast('Deleted','success'); renderClients(); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SCHEDULE
+// ═══════════════════════════════════════════════════════════════════════
+let scheduleDate = new Date().toISOString().split('T')[0];
+
+async function renderSchedule() {
+  const guardsRes = await call('getGuards');
+  const clientsRes = await call('getClients');
+  const cmdRes = await call('getCommanders');
+  window._guards = guardsRes.data || [];
+  window._clients = clientsRes.data || [];
+  window._commanders = cmdRes.data || [];
+  await loadScheduleForDate();
+}
+
+async function loadScheduleForDate() {
+  const res = await call('getSchedule', { date: scheduleDate });
+  const schedule = res.data || [];
+  const daySchedule = schedule.filter(s => s.Shift === 'day');
+  const nightSchedule = schedule.filter(s => s.Shift === 'night');
+
+  const d = new Date(scheduleDate);
+  const display = d.toLocaleDateString('en-UG',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="schedule-header">
+      <div class="schedule-date-nav">
+        <button onclick="changeScheduleDate(-1)">←</button>
+        <div class="schedule-date-display">${display}</div>
+        <button onclick="changeScheduleDate(1)">→</button>
+      </div>
+      <input type="date" value="${scheduleDate}" onchange="scheduleDate=this.value;loadScheduleForDate()" style="padding:8px 12px;border:1.5px solid var(--gray3);border-radius:8px;font-size:14px">
+      ${currentUser.role==='admin'||currentUser.role==='manager'||currentUser.role==='supervisor' ?
+        `<button class="btn btn-primary" onclick="showScheduleModal()">+ Add Deployment</button>` : ''}
+    </div>
+
+    <div class="shift-section">
+      <div class="shift-label"><span>☀️</span> Day Shift <span class="badge badge-day">${daySchedule.length}</span></div>
+      ${renderScheduleTable(daySchedule)}
+    </div>
+    <div class="shift-section">
+      <div class="shift-label"><span>🌙</span> Night Shift <span class="badge badge-night">${nightSchedule.length}</span></div>
+      ${renderScheduleTable(nightSchedule)}
+    </div>`;
+}
+
+function renderScheduleTable(items) {
+  if (!items.length) return '<div class="empty-state" style="padding:24px"><div class="empty-icon">📋</div>No deployments</div>';
+  return `<div class="card"><div class="card-body table-wrap"><table>
+    <thead><tr><th>Guard</th><th>Client/Site</th><th>Commander</th><th>Status</th><th>Notes</th><th>Actions</th></tr></thead>
+    <tbody>${items.map(s=>`
+      <tr>
+        <td><strong>${s.GuardName}</strong></td>
+        <td>${s.ClientName}</td>
+        <td>${s.CommanderID||'—'}</td>
+        <td><span class="badge badge-${s.Status}">${s.Status}</span></td>
+        <td style="font-size:12px;color:var(--gray5)">${s.Notes||'—'}</td>
+        <td>${currentUser.role==='admin'?`<button class="btn btn-danger btn-sm btn-icon" onclick="deleteSchedule('${s.ID}')">🗑️</button>`:''}
+        </td>
+      </tr>`).join('')}</tbody></table></div></div>`;
+}
+
+function changeScheduleDate(days) {
+  const d = new Date(scheduleDate);
+  d.setDate(d.getDate() + days);
+  scheduleDate = d.toISOString().split('T')[0];
+  loadScheduleForDate();
+}
+
+function showScheduleModal() {
+  const guards = (window._guards||[]).filter(g=>g.Status==='active');
+  const clients = (window._clients||[]).filter(c=>c.Status==='active');
+  const commanders = (window._commanders||[]).filter(c=>c.Status==='active');
+  document.getElementById('modalTitle').textContent = 'Add Deployment';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="form-grid">
+      <div class="form-group"><label>Guard</label>
+        <select id="schGuard">
+          <option value="">-- Select Guard --</option>
+          ${guards.map(g=>`<option value="${g.ID}|${g.FullName}">${g.FullName}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Client/Site</label>
+        <select id="schClient">
+          <option value="">-- Select Client --</option>
+          ${clients.map(c=>`<option value="${c.ID}|${c.CompanyName}">${c.CompanyName}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Date</label><input type="date" id="schDate" value="${scheduleDate}"></div>
+      <div class="form-group"><label>Shift</label>
+        <select id="schShift">
+          <option value="day">☀️ Day Shift</option>
+          <option value="night">🌙 Night Shift</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Commander</label>
+        <select id="schCmd">
+          <option value="">-- None --</option>
+          ${commanders.map(c=>`<option value="${c.ID}">${c.FullName}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group full"><label>Notes</label><textarea id="schNotes" placeholder="Any additional notes..."></textarea></div>
+    </div>`;
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="addSchedule()">Add Deployment</button>`;
+  openModal();
+}
+
+async function addSchedule() {
+  const guardVal = document.getElementById('schGuard').value;
+  const clientVal = document.getElementById('schClient').value;
+  if (!guardVal || !clientVal) { showToast('Select guard and client','error'); return; }
+  const [guardId, guardName] = guardVal.split('|');
+  const [clientId, clientName] = clientVal.split('|');
+  const res = await call('addSchedule', {
+    guardId, guardName, clientId, clientName,
+    date: document.getElementById('schDate').value,
+    shift: document.getElementById('schShift').value,
+    commanderId: document.getElementById('schCmd').value,
+    notes: document.getElementById('schNotes').value,
+  });
+  if (res.success) { closeModal(); showToast('Deployment added!','success'); loadScheduleForDate(); }
+  else showToast(res.error||'Error','error');
+}
+
+async function deleteSchedule(id) {
+  if (!confirm('Remove this deployment?')) return;
+  const res = await call('deleteSchedule', { id });
+  if (res.success) { showToast('Removed','success'); loadScheduleForDate(); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ATTENDANCE
+// ═══════════════════════════════════════════════════════════════════════
+let attDate = new Date().toISOString().split('T')[0];
+
+async function renderAttendance() {
+  const guardsRes = await call('getGuards');
+  window._guards = guardsRes.data || [];
+  await loadAttendanceForDate();
+}
+
+async function loadAttendanceForDate() {
+  const attRes = await call('getAttendance', { date: attDate });
+  const schedRes = await call('getSchedule', { date: attDate });
+  const attendance = attRes.data || [];
+  const schedule = schedRes.data || [];
+  const guards = (window._guards||[]).filter(g=>g.Status==='active');
+
+  // Build attendance map
+  const attMap = {};
+  attendance.forEach(a => attMap[a.GuardID] = a);
+
+  const d = new Date(attDate);
+  const display = d.toLocaleDateString('en-UG',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const presentCount = Object.values(attMap).filter(a=>a.Status==='present').length;
+  const absentCount = guards.length - presentCount;
+
+  document.getElementById('mainContent').innerHTML = `
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+      <div class="schedule-date-nav">
+        <button onclick="changeAttDate(-1)">←</button>
+        <div class="schedule-date-display">${display}</div>
+        <button onclick="changeAttDate(1)">→</button>
+      </div>
+      <input type="date" value="${attDate}" onchange="attDate=this.value;loadAttendanceForDate()" style="padding:8px 12px;border:1.5px solid var(--gray3);border-radius:8px;font-size:14px">
+      <div style="display:flex;gap:12px;margin-left:auto">
+        <div style="background:var(--white);border:1px solid var(--gray3);border-radius:8px;padding:8px 16px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:var(--green)">${presentCount}</div>
+          <div style="font-size:11px;color:var(--gray5)">PRESENT</div>
+        </div>
+        <div style="background:var(--white);border:1px solid var(--gray3);border-radius:8px;padding:8px 16px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:var(--red)">${absentCount}</div>
+          <div style="font-size:11px;color:var(--gray5)">ABSENT</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">✅ Daily Attendance</div>
+        <button class="btn btn-outline btn-sm" onclick="showBulkAttendance()">+ Mark Attendance</button>
+      </div>
+      <div class="card-body table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Guard</th><th>Scheduled Shift</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Notes</th></tr></thead>
+          <tbody>
+            ${guards.length===0
+              ? '<tr><td colspan="7"><div class="empty-state">No active guards</div></td></tr>'
+              : guards.map((g,i)=>{
+                const scheduled = schedule.find(s=>s.GuardID===g.ID);
+                const att = attMap[g.ID];
+                return `<tr>
+                  <td>${i+1}</td>
+                  <td><strong>${g.FullName}</strong></td>
+                  <td>${scheduled?`<span class="badge badge-${scheduled.Shift}">${scheduled.Shift==='day'?'☀️ Day':'🌙 Night'}</span>`:'Not scheduled'}</td>
+                  <td>${att?.CheckIn||'—'}</td>
+                  <td>${att?.CheckOut||'—'}</td>
+                  <td><span class="badge badge-${att?.Status||'absent'}">${att?.Status||'absent'}</span></td>
+                  <td style="font-size:12px;color:var(--gray5)">${att?.Notes||'—'}</td>
+                </tr>`;
+              }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function changeAttDate(days) {
+  const d = new Date(attDate);
+  d.setDate(d.getDate() + days);
+  attDate = d.toISOString().split('T')[0];
+  loadAttendanceForDate();
+}
+
+function showBulkAttendance() {
+  const guards = (window._guards||[]).filter(g=>g.Status==='active');
+  document.getElementById('modalTitle').textContent = 'Mark Attendance — ' + attDate;
+  document.getElementById('modalBody').innerHTML = `
+    <div style="max-height:400px;overflow-y:auto">
+      ${guards.map(g=>`
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--gray2)">
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:14px">${g.FullName}</div>
+          </div>
+          <select id="att_shift_${g.ID}" style="padding:6px 10px;border:1.5px solid var(--gray3);border-radius:6px;font-size:13px">
+            <option value="day">☀️ Day</option>
+            <option value="night">🌙 Night</option>
+          </select>
+          <select id="att_status_${g.ID}" style="padding:6px 10px;border:1.5px solid var(--gray3);border-radius:6px;font-size:13px">
+            <option value="present">✅ Present</option>
+            <option value="absent">❌ Absent</option>
+          </select>
+          <input type="time" id="att_in_${g.ID}" placeholder="Check-in" style="padding:6px 10px;border:1.5px solid var(--gray3);border-radius:6px;font-size:13px;width:100px">
+        </div>`).join('')}
+    </div>`;
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-success" onclick="submitBulkAttendance()">Save Attendance</button>`;
+  openModal();
+}
+
+async function submitBulkAttendance() {
+  const guards = (window._guards||[]).filter(g=>g.Status==='active');
+  let saved = 0;
+  for (const g of guards) {
+    const status = document.getElementById(`att_status_${g.ID}`)?.value;
+    const shift = document.getElementById(`att_shift_${g.ID}`)?.value;
+    const checkIn = document.getElementById(`att_in_${g.ID}`)?.value;
+    if (status) {
+      await call('markAttendance', { guardId:g.ID, guardName:g.FullName, date:attDate, shift, checkIn, status, markedBy:currentUser.username });
+      saved++;
+    }
+  }
+  closeModal();
+  showToast(`${saved} attendance records saved!`, 'success');
+  loadAttendanceForDate();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// PAYROLL
+// ═══════════════════════════════════════════════════════════════════════
+async function renderPayroll() {
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const year = now.getFullYear();
+  const res = await call('getPayroll', { month, year });
+  const payroll = res.data || [];
+
+  const totalGross = payroll.reduce((s,p)=>s+Number(p.GrossPay||0),0);
+  const totalNet = payroll.reduce((s,p)=>s+Number(p.NetPay||0),0);
+  const totalDed = payroll.reduce((s,p)=>s+Number(p.Deductions||0),0);
+
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  document.getElementById('mainContent').innerHTML = `
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+      <select id="payMonth" style="padding:9px 14px;border:1.5px solid var(--gray3);border-radius:8px;font-size:14px">
+        ${months.map((m,i)=>`<option value="${i+1}" ${i+1===month?'selected':''}>${m}</option>`).join('')}
+      </select>
+      <select id="payYear" style="padding:9px 14px;border:1.5px solid var(--gray3);border-radius:8px;font-size:14px">
+        ${[year-1,year,year+1].map(y=>`<option value="${y}" ${y===year?'selected':''}>${y}</option>`).join('')}
+      </select>
+      <button class="btn btn-outline" onclick="loadPayrollMonth()">Load</button>
+      ${currentUser.role==='admin'||currentUser.role==='manager'?
+        `<button class="btn btn-primary" onclick="generatePayroll()">⚙️ Generate Payroll</button>`:''
+      }
+    </div>
+
+    <div class="payroll-summary">
+      <div class="pay-card">
+        <div class="pay-num">UGX ${totalGross.toLocaleString()}</div>
+        <div class="pay-label">Total Gross Pay</div>
+      </div>
+      <div class="pay-card">
+        <div class="pay-num" style="color:var(--red)">UGX ${totalDed.toLocaleString()}</div>
+        <div class="pay-label">Total Deductions (5%)</div>
+      </div>
+      <div class="pay-card">
+        <div class="pay-num" style="color:var(--green)">UGX ${totalNet.toLocaleString()}</div>
+        <div class="pay-label">Total Net Pay</div>
+      </div>
+    </div>
+
+    <div class="card" id="payrollCard">
+      <div class="card-header"><div class="card-title">💰 Payroll — ${months[month-1]} ${year}</div></div>
+      <div class="card-body table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Name</th><th>Rank</th><th>Days Worked</th><th>Daily Rate</th><th>Gross Pay</th><th>Deductions</th><th>Net Pay</th><th>Status</th></tr></thead>
+          <tbody id="payrollTbody">
+            ${payroll.length===0
+              ? '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">💰</div>No payroll generated yet. Click "Generate Payroll".</div></td></tr>'
+              : payroll.map((p,i)=>`<tr>
+                <td>${i+1}</td>
+                <td><strong>${p.GuardName}</strong></td>
+                <td><span class="badge badge-${p.Rank}">${p.Rank}</span></td>
+                <td style="font-weight:600">${p.DaysWorked}</td>
+                <td>UGX ${Number(p.DailyRate||0).toLocaleString()}</td>
+                <td>UGX ${Number(p.GrossPay||0).toLocaleString()}</td>
+                <td style="color:var(--red)">UGX ${Number(p.Deductions||0).toLocaleString()}</td>
+                <td style="font-weight:700;color:var(--green)">UGX ${Number(p.NetPay||0).toLocaleString()}</td>
+                <td><span class="badge badge-${p.Status}">${p.Status}</span></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+async function loadPayrollMonth() {
+  const month = document.getElementById('payMonth').value;
+  const year = document.getElementById('payYear').value;
+  const res = await call('getPayroll', { month, year });
+  const payroll = res.data || [];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('payrollTbody').innerHTML = payroll.length===0
+    ? '<tr><td colspan="9"><div class="empty-state">No payroll for this period</div></td></tr>'
+    : payroll.map((p,i)=>`<tr>
+        <td>${i+1}</td>
+        <td><strong>${p.GuardName}</strong></td>
+        <td><span class="badge badge-${p.Rank}">${p.Rank}</span></td>
+        <td>${p.DaysWorked}</td>
+        <td>UGX ${Number(p.DailyRate||0).toLocaleString()}</td>
+        <td>UGX ${Number(p.GrossPay||0).toLocaleString()}</td>
+        <td style="color:var(--red)">UGX ${Number(p.Deductions||0).toLocaleString()}</td>
+        <td style="font-weight:700;color:var(--green)">UGX ${Number(p.NetPay||0).toLocaleString()}</td>
+        <td><span class="badge badge-${p.Status}">${p.Status}</span></td>
+      </tr>`).join('');
+}
+
+async function generatePayroll() {
+  const month = document.getElementById('payMonth').value;
+  const year = document.getElementById('payYear').value;
+  if (!confirm(`Generate payroll for month ${month}/${year}? Existing payroll for this period will be replaced.`)) return;
+  showToast('Generating payroll...', '');
+  const res = await call('generatePayroll', { month, year, generatedBy: currentUser.username });
+  if (res.success) {
+    showToast(`Payroll generated for ${res.count} personnel!`, 'success');
+    renderPayroll();
+  } else showToast(res.error||'Error generating payroll', 'error');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SALARY SCALE
+// ═══════════════════════════════════════════════════════════════════════
+async function renderSalaryScale() {
+  if (!canAccess('salaryScale')) { document.getElementById('mainContent').innerHTML = '<div class="empty-state"><div class="empty-icon">🔒</div>Access restricted</div>'; return; }
+  const res = await call('getSalaryScale');
+  const scale = res.data || [];
+  document.getElementById('mainContent').innerHTML = `
+    <div class="card" style="max-width:600px">
+      <div class="card-header"><div class="card-title">📋 Salary Scale by Rank</div></div>
+      <div class="card-body" style="padding:24px">
+        ${scale.map(s=>`
+          <div style="background:var(--gray1);border-radius:10px;padding:20px;margin-bottom:16px;border:1px solid var(--gray3)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <span class="badge badge-${s.Rank}" style="font-size:14px;padding:6px 14px">${s.Rank.toUpperCase()}</span>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Daily Rate (UGX)</label>
+                <input type="number" id="rate_${s.Rank}" value="${s.DailyRate}" style="padding:10px 14px;border:1.5px solid var(--gray3);border-radius:8px;font-size:14px;font-weight:600">
+              </div>
+              <div class="form-group">
+                <label>Monthly Base (UGX)</label>
+                <input type="number" id="base_${s.Rank}" value="${s.MonthlyBase}" style="padding:10px 14px;border:1.5px solid var(--gray3);border-radius:8px;font-size:14px">
+              </div>
+            </div>
+            ${currentUser.role==='admin'||currentUser.role==='manager' ?
+              `<button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="saveSalaryScale('${s.Rank}')">Save ${s.Rank} Scale</button>`
+              : '<div style="font-size:12px;color:var(--gray5)">Contact admin to update salary scales</div>'}
+          </div>`).join('')}
+        ${scale.length===0?'<div class="empty-state">No salary scale configured. Please initialize via Google Apps Script.</div>':''}
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:16px;background:var(--white);border-radius:10px;border:1px solid var(--gray3);max-width:600px">
+      <div style="font-weight:700;margin-bottom:8px;color:var(--navy)">📌 Payroll Calculation Formula</div>
+      <div style="font-size:13px;color:var(--gray5);line-height:1.8">
+        <strong>Gross Pay</strong> = Days Worked × Daily Rate<br>
+        <strong>Deductions</strong> = Gross Pay × 5% (NSSF / Tax)<br>
+        <strong>Net Pay</strong> = Gross Pay − Deductions
+      </div>
+    </div>`;
+}
+
+async function saveSalaryScale(rank) {
+  const dailyRate = document.getElementById(`rate_${rank}`).value;
+  const monthlyBase = document.getElementById(`base_${rank}`).value;
+  const res = await call('setSalaryScale', { rank, dailyRate: Number(dailyRate), monthlyBase: Number(monthlyBase) });
+  if (res.success) showToast('Salary scale updated!','success');
+  else showToast(res.error||'Error','error');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// USERS
+// ═══════════════════════════════════════════════════════════════════════
+async function renderUsers() {
+  if (currentUser.role !== 'admin') {
+    document.getElementById('mainContent').innerHTML = '<div class="empty-state"><div class="empty-icon">🔒</div>Admin access required</div>';
+    return;
+  }
+  const res = await call('getUsers');
+  const users = res.data || [];
+  document.getElementById('mainContent').innerHTML = `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:20px">
+      <button class="btn btn-primary" onclick="showUserModal()">+ Add User Account</button>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">👤 User Accounts <span style="font-size:13px;font-weight:400;color:var(--gray5)">(${users.length} accounts)</span></div></div>
+      <div class="card-body table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Username</th><th>Full Name</th><th>Role</th><th>Email</th><th>Active</th><th>Actions</th></tr></thead>
+          <tbody>
+            ${users.map((u,i)=>`<tr>
+              <td>${i+1}</td>
+              <td><code style="background:var(--gray1);padding:3px 8px;border-radius:4px;font-size:12px">${u.Username}</code></td>
+              <td><strong>${u.FullName}</strong></td>
+              <td><span class="badge badge-${u.Role}">${u.Role}</span></td>
+              <td>${u.Email}</td>
+              <td><span class="badge badge-${u.Active?'active':'inactive'}">${u.Active?'Active':'Inactive'}</span></td>
+              <td>
+                <div style="display:flex;gap:4px">
+                  <button class="btn btn-outline btn-sm btn-icon" onclick='showUserModal(${JSON.stringify(u)})'>✏️</button>
+                  <button class="btn btn-danger btn-sm btn-icon" onclick="deleteUser('${u.ID}')">🗑️</button>
+                </div>
+              </td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:16px;background:#fff3cd;border-radius:10px;border:1px solid #ffd369">
+      <strong>Role Permissions:</strong>
+      <div style="font-size:13px;margin-top:8px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
+        <div><span class="badge badge-admin">admin</span> — Full system access</div>
+        <div><span class="badge badge-manager">manager</span> — All except user management</div>
+        <div><span class="badge badge-guard">supervisor</span> — Dashboard, guards, schedule, attendance</div>
+        <div><span class="badge badge-active">viewer</span> — Dashboard and guards only</div>
+      </div>
+    </div>`;
+}
+
+function showUserModal(user = null) {
+  const isEdit = !!user;
+  document.getElementById('modalTitle').textContent = isEdit ? 'Edit User' : 'Add User Account';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="form-grid">
+      <div class="form-group"><label>Username</label><input type="text" id="uUsername" value="${user?.Username||''}" placeholder="loginname" ${isEdit?'readonly':''}></div>
+      <div class="form-group"><label>Password ${isEdit?'(leave blank to keep)':''}</label><input type="password" id="uPassword" placeholder="Enter password"></div>
+      <div class="form-group full"><label>Full Name</label><input type="text" id="uFullName" value="${user?.FullName||''}" placeholder="First and last name"></div>
+      <div class="form-group"><label>Role</label>
+        <select id="uRole">
+          <option value="admin" ${user?.Role==='admin'?'selected':''}>Administrator</option>
+          <option value="manager" ${user?.Role==='manager'?'selected':''}>Manager</option>
+          <option value="supervisor" ${user?.Role==='supervisor'?'selected':''}>Supervisor</option>
+          <option value="viewer" ${user?.Role==='viewer'?'selected':''}>Viewer</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Email</label><input type="email" id="uEmail" value="${user?.Email||''}" placeholder="email@company.com"></div>
+      ${isEdit?`<div class="form-group"><label>Active</label><select id="uActive"><option value="true" ${user?.Active?'selected':''}>Active</option><option value="false" ${!user?.Active?'selected':''}>Inactive</option></select></div>`:''}
+    </div>`;
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="${isEdit?`updateUser('${user.ID}')`:'addUser()'}">
+      ${isEdit ? 'Save Changes' : 'Create Account'}
+    </button>`;
+  openModal();
+}
+
+async function addUser() {
+  const username = document.getElementById('uUsername').value.trim();
+  const password = document.getElementById('uPassword').value;
+  const fullName = document.getElementById('uFullName').value.trim();
+  if (!username||!password||!fullName) { showToast('Username, password, and full name required','error'); return; }
+  const res = await call('addUser', { username, password, fullName, role: document.getElementById('uRole').value, email: document.getElementById('uEmail').value });
+  if (res.success) { closeModal(); showToast('User created!','success'); renderUsers(); }
+  else showToast(res.error||'Error','error');
+}
+
+async function updateUser(id) {
+  const data = { id, fullName: document.getElementById('uFullName').value, role: document.getElementById('uRole').value, email: document.getElementById('uEmail').value, active: document.getElementById('uActive')?.value === 'true' };
+  const pass = document.getElementById('uPassword').value;
+  if (pass) data.password = pass;
+  const res = await call('updateUser', data);
+  if (res.success) { closeModal(); showToast('User updated!','success'); renderUsers(); }
+  else showToast(res.error||'Error','error');
+}
+
+async function deleteUser(id) {
+  if (!confirm('Delete this user account?')) return;
+  const res = await call('deleteUser', { id });
+  if (res.success) { showToast('User deleted','success'); renderUsers(); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════════════════
+function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show' + (type ? ' ' + type : '');
+  setTimeout(() => t.className = '', 3000);
+}
+
+function filterTable(inputId, tbodyId) {
+  const q = document.getElementById(inputId).value.toLowerCase();
+  const rows = document.getElementById(tbodyId).querySelectorAll('tr');
+  rows.forEach(r => { r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SESSION RESTORE
+// ═══════════════════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = sessionStorage.getItem('sgpUser');
+  if (saved) {
+    try {
+      currentUser = JSON.parse(saved);
+      startApp();
+    } catch { /* invalid session */ }
+  }
+});
+</script>
+</body>
+</html>
