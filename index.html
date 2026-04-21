@@ -1,0 +1,2265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecureGuard Pro — Security Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --bg: #0a0c14;
+  --surface: #111520;
+  --surface2: #161b2c;
+  --border: #1e2540;
+  --accent: #f5a623;
+  --accent2: #e8562a;
+  --green: #27c87e;
+  --red: #e8562a;
+  --blue: #3d8ef8;
+  --purple: #8b5cf6;
+  --text: #e8eaf2;
+  --text2: #8b90a8;
+  --text3: #5a5f75;
+  --card-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --radius: 12px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== TYPOGRAPHY ===== */
+h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
+
+/* ===== LOGIN PAGE ===== */
+#loginPage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+#loginPage::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%);
+  top: -200px; right: -200px;
+  pointer-events: none;
+}
+
+#loginPage::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(61,142,248,0.06) 0%, transparent 70%);
+  bottom: -100px; left: -100px;
+  pointer-events: none;
+}
+
+.login-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px 44px;
+  width: 420px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+  position: relative;
+  z-index: 1;
+  animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+
+.logo-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+
+.login-logo h1 {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.login-logo span { color: var(--accent); }
+
+.login-box h2 {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.login-box p { color: var(--text2); font-size: 14px; margin-bottom: 32px; }
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  border-color: var(--accent);
+}
+
+.form-group select option { background: var(--surface2); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff;
+  width: 100%;
+  justify-content: center;
+  padding: 14px;
+  font-size: 15px;
+}
+
+.btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover { border-color: var(--accent); }
+
+.btn-danger { background: rgba(232,86,42,0.15); color: var(--red); border: 1px solid rgba(232,86,42,0.3); }
+.btn-success { background: rgba(39,200,126,0.15); color: var(--green); border: 1px solid rgba(39,200,126,0.3); }
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 7px; }
+
+.login-error {
+  background: rgba(232,86,42,0.12);
+  border: 1px solid rgba(232,86,42,0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--red);
+  margin-bottom: 20px;
+  display: none;
+}
+
+/* ===== APP LAYOUT ===== */
+#app { display: none; }
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-header .logo-icon { width: 36px; height: 36px; font-size: 18px; }
+
+.sidebar-header h2 {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.sidebar-header h2 span { color: var(--accent); }
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 12px;
+}
+
+.nav-section {
+  margin-bottom: 8px;
+}
+
+.nav-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text3);
+  padding: 8px 8px 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 2px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+
+.nav-item.active {
+  background: rgba(245,166,35,0.12);
+  color: var(--accent);
+}
+
+.nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
+
+.sidebar-footer {
+  padding: 16px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface2);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.user-avatar {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.user-info .name { font-size: 13px; font-weight: 600; }
+.user-info .role {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: capitalize;
+}
+
+.logout-btn {
+  width: 100%;
+  background: rgba(232,86,42,0.08);
+  border: 1px solid rgba(232,86,42,0.2);
+  color: var(--red);
+  border-radius: 9px;
+  padding: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.logout-btn:hover { background: rgba(232,86,42,0.15); }
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar h1 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.date-badge {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.page-content {
+  padding: 32px;
+  flex: 1;
+}
+
+/* ===== DASHBOARD STATS ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.stat-card.guards::before { background: var(--accent); }
+.stat-card.commanders::before { background: var(--purple); }
+.stat-card.clients::before { background: var(--blue); }
+.stat-card.duty::before { background: var(--green); }
+.stat-card.day-shift::before { background: var(--accent); }
+.stat-card.night-shift::before { background: #6366f1; }
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text2);
+  margin-bottom: 12px;
+}
+
+.stat-number {
+  font-family: 'Syne', sans-serif;
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-card.guards .stat-number { color: var(--accent); }
+.stat-card.commanders .stat-number { color: var(--purple); }
+.stat-card.clients .stat-number { color: var(--blue); }
+.stat-card.duty .stat-number { color: var(--green); }
+
+.stat-icon {
+  position: absolute;
+  top: 20px; right: 20px;
+  font-size: 28px;
+  opacity: 0.3;
+}
+
+/* ===== TABLES ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-actions { display: flex; gap: 8px; }
+
+.table-wrap { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text3);
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 13px 16px;
+  border-bottom: 1px solid rgba(30,37,64,0.5);
+  color: var(--text);
+}
+
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-active { background: rgba(39,200,126,0.15); color: var(--green); }
+.badge-inactive { background: rgba(232,86,42,0.15); color: var(--red); }
+.badge-day { background: rgba(245,166,35,0.15); color: var(--accent); }
+.badge-night { background: rgba(99,102,241,0.15); color: #818cf8; }
+.badge-present { background: rgba(39,200,126,0.15); color: var(--green); }
+.badge-absent { background: rgba(232,86,42,0.15); color: var(--red); }
+.badge-scheduled { background: rgba(61,142,248,0.15); color: var(--blue); }
+.badge-admin { background: rgba(245,166,35,0.15); color: var(--accent); }
+.badge-manager { background: rgba(139,92,246,0.15); color: var(--purple); }
+.badge-commander { background: rgba(61,142,248,0.15); color: var(--blue); }
+.badge-guard { background: rgba(39,200,126,0.15); color: var(--green); }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  display: none;
+}
+
+.modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+}
+
+.modal-header {
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title { font-size: 18px; font-weight: 700; }
+.modal-close { background: none; border: none; color: var(--text2); font-size: 22px; cursor: pointer; }
+.modal-close:hover { color: var(--text); }
+
+.modal-body { padding: 24px 28px; }
+.modal-footer {
+  padding: 16px 28px 24px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ===== SEARCH BAR ===== */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.search-input-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 320px;
+}
+
+.search-input-wrap input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px 10px 40px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+}
+
+.search-input-wrap input:focus { border-color: var(--accent); }
+
+.search-icon {
+  position: absolute;
+  left: 13px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  font-size: 16px;
+}
+
+/* ===== TOAST ===== */
+#toastContainer {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: toastIn 0.3s ease;
+  max-width: 340px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.toast-success { background: rgba(39,200,126,0.95); color: #fff; }
+.toast-error { background: rgba(232,86,42,0.95); color: #fff; }
+.toast-info { background: rgba(61,142,248,0.95); color: #fff; }
+
+/* ===== LOADING ===== */
+.loader {
+  display: inline-block;
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  display: none;
+}
+
+.loading-overlay.show { display: flex; }
+
+.loading-spinner {
+  width: 44px; height: 44px;
+  border: 3px solid rgba(245,166,35,0.2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ===== DEPLOYMENT TABLE ===== */
+.deploy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text3);
+}
+
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+/* ===== PAGE TRANSITIONS ===== */
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+
+/* ===== PAYROLL ===== */
+.payroll-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.payroll-stat {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  text-align: center;
+}
+
+.payroll-stat .value {
+  font-family: 'Syne', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.payroll-stat .label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .deploy-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== LOADING OVERLAY ===== -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div id="toastContainer"></div>
+
+<!-- ===== LOGIN PAGE ===== -->
+<div id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-icon">🛡️</div>
+      <h1>Secure<span>Guard</span> Pro</h1>
+    </div>
+    <h2>Welcome Back</h2>
+    <p>Sign in to access the management system</p>
+    <div class="login-error" id="loginError"></div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="loginUsername" placeholder="Enter username" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="Enter password" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" id="loginBtn" onclick="login()">Sign In →</button>
+    <div style="margin-top:20px; padding:14px; background:var(--surface2); border-radius:10px; font-size:12px; color:var(--text2);">
+      <strong style="color:var(--text)">Default Credentials</strong><br>
+      Username: <code style="color:var(--accent)">admin</code> / Password: <code style="color:var(--accent)">Admin@123</code>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app">
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">🛡️</div>
+        <h2>Secure<span>Guard</span></h2>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-label">Overview</div>
+          <button class="nav-item active" onclick="showPage('dashboard')">
+            <span class="icon">📊</span> Dashboard
+          </button>
+        </div>
+
+        <div class="nav-section" id="navPersonnel">
+          <div class="nav-label">Personnel</div>
+          <button class="nav-item" onclick="showPage('guards')">
+            <span class="icon">👮</span> Guards
+          </button>
+          <button class="nav-item" onclick="showPage('commanders')">
+            <span class="icon">🎖️</span> Commanders
+          </button>
+        </div>
+
+        <div class="nav-section" id="navClients">
+          <div class="nav-label">Operations</div>
+          <button class="nav-item" onclick="showPage('clients')">
+            <span class="icon">🏢</span> Clients
+          </button>
+          <button class="nav-item" onclick="showPage('schedule')">
+            <span class="icon">📅</span> Deployment Rota
+          </button>
+          <button class="nav-item" onclick="showPage('attendance')">
+            <span class="icon">✅</span> Attendance
+          </button>
+        </div>
+
+        <div class="nav-section" id="navPayroll">
+          <div class="nav-label">Finance</div>
+          <button class="nav-item" onclick="showPage('salary')">
+            <span class="icon">💰</span> Salary Scale
+          </button>
+          <button class="nav-item" onclick="showPage('payroll')">
+            <span class="icon">📄</span> Payroll
+          </button>
+        </div>
+
+        <div class="nav-section" id="navAdmin">
+          <div class="nav-label">Administration</div>
+          <button class="nav-item" onclick="showPage('users')">
+            <span class="icon">👤</span> User Management
+          </button>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <div class="user-info">
+            <div class="name" id="userName">Admin</div>
+            <div class="role" id="userRole">Administrator</div>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">🔓 Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+      <div class="topbar">
+        <h1 id="pageTitle">Dashboard</h1>
+        <div class="topbar-right">
+          <div class="date-badge" id="dateBadge"></div>
+        </div>
+      </div>
+
+      <div class="page-content">
+
+        <!-- ===== DASHBOARD ===== -->
+        <div class="page active" id="page-dashboard">
+          <div class="stats-grid" id="statsGrid">
+            <div class="stat-card guards">
+              <div class="stat-label">Total Guards</div>
+              <div class="stat-number" id="statGuards">—</div>
+              <div class="stat-icon">👮</div>
+            </div>
+            <div class="stat-card commanders">
+              <div class="stat-label">Commanders</div>
+              <div class="stat-number" id="statCommanders">—</div>
+              <div class="stat-icon">🎖️</div>
+            </div>
+            <div class="stat-card clients">
+              <div class="stat-label">Active Clients</div>
+              <div class="stat-number" id="statClients">—</div>
+              <div class="stat-icon">🏢</div>
+            </div>
+            <div class="stat-card duty">
+              <div class="stat-label">On Duty Today</div>
+              <div class="stat-number" id="statDuty">—</div>
+              <div class="stat-icon">✅</div>
+            </div>
+            <div class="stat-card day-shift">
+              <div class="stat-label">Day Shift</div>
+              <div class="stat-number" id="statDayShift" style="color:var(--accent)">—</div>
+              <div class="stat-icon">☀️</div>
+            </div>
+            <div class="stat-card night-shift">
+              <div class="stat-label">Night Shift</div>
+              <div class="stat-number" id="statNightShift" style="color:#818cf8">—</div>
+              <div class="stat-icon">🌙</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📅 Today's Deployment</div>
+              <button class="btn btn-secondary btn-sm" onclick="loadDashboard()">↻ Refresh</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Guard</th><th>Client</th><th>Shift</th><th>Commander</th><th>Status</th></tr>
+                </thead>
+                <tbody id="todayDeployTable">
+                  <tr><td colspan="5"><div class="empty-state"><div class="icon">📋</div><p>Loading deployment data...</p></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== GUARDS ===== -->
+        <div class="page" id="page-guards">
+          <div class="search-bar">
+            <div class="search-input-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search guards..." id="guardSearch" oninput="filterTable('guardTable', this.value)">
+            </div>
+            <button class="btn btn-primary" onclick="openModal('guardModal')">+ Add Guard</button>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">👮 Guards Database</div>
+              <span id="guardCount" style="color:var(--text2);font-size:13px"></span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>#</th><th>Full Name</th><th>Phone</th><th>NIN</th><th>Age</th><th>Gender</th><th>Residence</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="guardTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== COMMANDERS ===== -->
+        <div class="page" id="page-commanders">
+          <div class="search-bar">
+            <div class="search-input-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search commanders..." oninput="filterTable('commanderTable', this.value)">
+            </div>
+            <button class="btn btn-primary" onclick="openModal('commanderModal')">+ Add Commander</button>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🎖️ Commanders Database</div>
+              <span id="commanderCount" style="color:var(--text2);font-size:13px"></span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>#</th><th>Full Name</th><th>Phone</th><th>NIN</th><th>Age</th><th>Gender</th><th>Residence</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="commanderTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== CLIENTS ===== -->
+        <div class="page" id="page-clients">
+          <div class="search-bar">
+            <div class="search-input-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search clients..." oninput="filterTable('clientTable', this.value)">
+            </div>
+            <button class="btn btn-primary" onclick="openModal('clientModal')">+ Add Client</button>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🏢 Clients Database</div>
+              <span id="clientCount" style="color:var(--text2);font-size:13px"></span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>#</th><th>Client Name</th><th>Contact Person</th><th>Phone</th><th>Address</th><th>Guards Req.</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="clientTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCHEDULE ===== -->
+        <div class="page" id="page-schedule">
+          <div class="search-bar">
+            <div class="search-input-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search schedule..." oninput="filterTable('scheduleTable', this.value)">
+            </div>
+            <button class="btn btn-primary" onclick="openModal('scheduleModal')">+ Add Deployment</button>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📅 Deployment Rota</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>#</th><th>Guard</th><th>Client</th><th>Shift</th><th>Date</th><th>Commander</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="scheduleTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== ATTENDANCE ===== -->
+        <div class="page" id="page-attendance">
+          <div class="search-bar">
+            <div class="search-input-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search attendance..." oninput="filterTable('attendanceTable', this.value)">
+            </div>
+            <button class="btn btn-primary" onclick="openModal('attendanceModal')">+ Mark Attendance</button>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">✅ Daily Attendance Rota</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>#</th><th>Guard</th><th>Date</th><th>Shift</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Marked By</th></tr>
+                </thead>
+                <tbody id="attendanceTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SALARY SCALE ===== -->
+        <div class="page" id="page-salary">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">💰 Salary Scale</div>
+              <button class="btn btn-primary btn-sm" onclick="openModal('salaryModal')">✏️ Update Scale</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Rank</th><th>Daily Rate (UGX)</th><th>Monthly (26 days)</th><th>Last Updated</th></tr>
+                </thead>
+                <tbody id="salaryTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== PAYROLL ===== -->
+        <div class="page" id="page-payroll">
+          <div class="card" style="margin-bottom:24px">
+            <div class="card-header">
+              <div class="card-title">📄 Generate Monthly Payroll</div>
+            </div>
+            <div class="modal-body" style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
+              <div class="form-group" style="margin:0;flex:1;min-width:140px">
+                <label>Month</label>
+                <select id="payrollMonth">
+                  <option value="1">January</option><option value="2">February</option>
+                  <option value="3">March</option><option value="4">April</option>
+                  <option value="5">May</option><option value="6">June</option>
+                  <option value="7">July</option><option value="8">August</option>
+                  <option value="9">September</option><option value="10">October</option>
+                  <option value="11">November</option><option value="12">December</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0;flex:1;min-width:120px">
+                <label>Year</label>
+                <input type="number" id="payrollYear" value="2025" min="2020" max="2030">
+              </div>
+              <button class="btn btn-primary" onclick="generatePayroll()">⚡ Generate Payroll</button>
+              <button class="btn btn-secondary" onclick="viewPayroll()">👁 View Payroll</button>
+            </div>
+          </div>
+
+          <div class="payroll-summary" id="payrollSummary" style="display:none">
+            <div class="payroll-stat">
+              <div class="value" id="payTotalStaff">0</div>
+              <div class="label">Total Staff</div>
+            </div>
+            <div class="payroll-stat">
+              <div class="value" id="payTotalDays">0</div>
+              <div class="label">Total Days Worked</div>
+            </div>
+            <div class="payroll-stat">
+              <div class="value" id="payTotalAmount">UGX 0</div>
+              <div class="label">Total Payroll</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📄 Payroll Records</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>#</th><th>Name</th><th>Rank</th><th>Month/Year</th><th>Days Worked</th><th>Daily Rate</th><th>Total Pay (UGX)</th></tr>
+                </thead>
+                <tbody id="payrollTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== USERS ===== -->
+        <div class="page" id="page-users">
+          <div class="search-bar">
+            <button class="btn btn-primary" onclick="openModal('userModal')">+ Create User</button>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">👤 User Management</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>#</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="userTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end page-content -->
+    </main>
+  </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Guard Modal -->
+<div class="modal-overlay" id="guardModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">👮 Add New Guard</div>
+      <button class="modal-close" onclick="closeModal('guardModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="guardId">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="guardFullName" placeholder="e.g. John Okello">
+        </div>
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input type="text" id="guardPhone" placeholder="e.g. 0701234567">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>NIN *</label>
+          <input type="text" id="guardNin" placeholder="National ID Number">
+        </div>
+        <div class="form-group">
+          <label>Age</label>
+          <input type="number" id="guardAge" placeholder="e.g. 28" min="18" max="60">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Gender</label>
+          <select id="guardGender">
+            <option value="">Select...</option>
+            <option>Male</option><option>Female</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Area of Residence</label>
+          <input type="text" id="guardResidence" placeholder="e.g. Kampala, Nakawa">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('guardModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGuard()">Save Guard</button>
+    </div>
+  </div>
+</div>
+
+<!-- Commander Modal -->
+<div class="modal-overlay" id="commanderModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🎖️ Add New Commander</div>
+      <button class="modal-close" onclick="closeModal('commanderModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="commanderId">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="commanderFullName" placeholder="e.g. James Mwesigwa">
+        </div>
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input type="text" id="commanderPhone" placeholder="e.g. 0701234567">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>NIN *</label>
+          <input type="text" id="commanderNin" placeholder="National ID Number">
+        </div>
+        <div class="form-group">
+          <label>Age</label>
+          <input type="number" id="commanderAge" placeholder="e.g. 35" min="18" max="60">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Gender</label>
+          <select id="commanderGender">
+            <option value="">Select...</option>
+            <option>Male</option><option>Female</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Area of Residence</label>
+          <input type="text" id="commanderResidence" placeholder="e.g. Kampala, Makindye">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('commanderModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCommander()">Save Commander</button>
+    </div>
+  </div>
+</div>
+
+<!-- Client Modal -->
+<div class="modal-overlay" id="clientModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🏢 Add New Client</div>
+      <button class="modal-close" onclick="closeModal('clientModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="clientId">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Client/Company Name *</label>
+          <input type="text" id="clientName" placeholder="e.g. Stanbic Bank">
+        </div>
+        <div class="form-group">
+          <label>Contact Person</label>
+          <input type="text" id="clientContact" placeholder="e.g. Sarah Nakato">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Phone *</label>
+          <input type="text" id="clientPhone" placeholder="e.g. 0414123456">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="clientEmail" placeholder="info@client.com">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Address</label>
+        <input type="text" id="clientAddress" placeholder="e.g. Plot 15, Kampala Road, Kampala">
+      </div>
+      <div class="form-group">
+        <label>Guards Required</label>
+        <input type="number" id="clientGuards" placeholder="1" min="1">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('clientModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClient()">Save Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- Schedule Modal -->
+<div class="modal-overlay" id="scheduleModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📅 Add Deployment</div>
+      <button class="modal-close" onclick="closeModal('scheduleModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Guard *</label>
+          <select id="schedGuard"><option value="">Select guard...</option></select>
+        </div>
+        <div class="form-group">
+          <label>Client *</label>
+          <select id="schedClient"><option value="">Select client...</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Shift *</label>
+          <select id="schedShift">
+            <option value="">Select shift...</option>
+            <option value="day">Day Shift (06:00 – 18:00)</option>
+            <option value="night">Night Shift (18:00 – 06:00)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date *</label>
+          <input type="date" id="schedDate">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Commander (optional)</label>
+        <select id="schedCommander"><option value="">Select commander...</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('scheduleModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSchedule()">Save Deployment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Attendance Modal -->
+<div class="modal-overlay" id="attendanceModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✅ Mark Attendance</div>
+      <button class="modal-close" onclick="closeModal('attendanceModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Guard *</label>
+          <select id="attGuard"><option value="">Select guard...</option></select>
+        </div>
+        <div class="form-group">
+          <label>Date *</label>
+          <input type="date" id="attDate">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Shift Type</label>
+          <select id="attShift">
+            <option value="day">Day</option>
+            <option value="night">Night</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="attStatus">
+            <option value="present">Present</option>
+            <option value="absent">Absent</option>
+            <option value="late">Late</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Check In Time</label>
+          <input type="time" id="attCheckIn">
+        </div>
+        <div class="form-group">
+          <label>Check Out Time</label>
+          <input type="time" id="attCheckOut">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('attendanceModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAttendance()">Mark Attendance</button>
+    </div>
+  </div>
+</div>
+
+<!-- Salary Modal -->
+<div class="modal-overlay" id="salaryModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">💰 Update Salary Scale</div>
+      <button class="modal-close" onclick="closeModal('salaryModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Rank</label>
+        <select id="salaryRank">
+          <option value="guard">Guard</option>
+          <option value="commander">Commander</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Daily Rate (UGX)</label>
+        <input type="number" id="salaryRate" placeholder="e.g. 20000">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('salaryModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="updateSalary()">Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">👤 Create User Account</div>
+      <button class="modal-close" onclick="closeModal('userModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="newUserFullName" placeholder="e.g. Peter Ssemakula">
+        </div>
+        <div class="form-group">
+          <label>Username *</label>
+          <input type="text" id="newUsername" placeholder="e.g. peter.ssemakula">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="newUserEmail" placeholder="user@secureguard.com">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Password *</label>
+          <input type="password" id="newPassword" placeholder="Min 8 characters">
+        </div>
+        <div class="form-group">
+          <label>Role *</label>
+          <select id="newUserRole">
+            <option value="guard">Guard</option>
+            <option value="commander">Commander</option>
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('userModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="createUser()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURATION
+// ============================================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbyVTmjiewLiG--cgO_Rml5AQM5TiKAuMIoH9MlN7ggnLW6EeUOYmrJJusCa8ixTZ3LM/exec'; // Replace with your deployed Apps Script URL
+
+// ============================================================
+// STATE
+// ============================================================
+let currentUser = null;
+let currentPage = 'dashboard';
+let guardsData = [];
+let commandersData = [];
+let clientsData = [];
+
+// ============================================================
+// API CALLS
+// ============================================================
+async function api(action, params = {}) {
+  const token = localStorage.getItem('sgToken');
+  const payload = { action, ...params };
+  if (token) payload.token = token;
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    return await res.json();
+  } catch (err) {
+    console.error('API Error:', err);
+    return { success: false, error: 'Network error. Check connection.' };
+  }
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function showLoading(show) {
+  document.getElementById('loadingOverlay').classList.toggle('show', show);
+}
+
+function toast(msg, type = 'info') {
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+function formatNumber(n) {
+  return new Intl.NumberFormat().format(n || 0);
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function filterTable(tableId, query) {
+  const q = query.toLowerCase();
+  const rows = document.querySelectorAll(`#${tableId} tr`);
+  rows.forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+function badgeHtml(val, map) {
+  const cls = map[val] || 'badge-inactive';
+  return `<span class="badge ${cls}">${val}</span>`;
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+async function login() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginBtn');
+
+  if (!username || !password) { errEl.textContent = 'Please enter username and password'; errEl.style.display = 'block'; return; }
+
+  btn.innerHTML = '<div class="loader"></div> Signing in...';
+  btn.disabled = true;
+
+  const res = await api('login', { username, password });
+
+  btn.innerHTML = 'Sign In →';
+  btn.disabled = false;
+
+  if (res.success) {
+    localStorage.setItem('sgToken', res.token);
+    localStorage.setItem('sgUser', JSON.stringify(res.user));
+    currentUser = res.user;
+    initApp();
+  } else {
+    errEl.textContent = res.error || 'Login failed';
+    errEl.style.display = 'block';
+  }
+}
+
+async function logout() {
+  await api('logout');
+  localStorage.removeItem('sgToken');
+  localStorage.removeItem('sgUser');
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+}
+
+// Enter key login
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginPage').style.display !== 'none') login();
+});
+
+// ============================================================
+// APP INITIALIZATION
+// ============================================================
+async function initApp() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  // Set user info
+  document.getElementById('userName').textContent = currentUser.fullName || currentUser.username;
+  document.getElementById('userRole').textContent = currentUser.role;
+  document.getElementById('userAvatar').textContent = (currentUser.fullName || currentUser.username).charAt(0).toUpperCase();
+
+  // Set date
+  const now = new Date();
+  document.getElementById('dateBadge').textContent = now.toLocaleDateString('en-UG', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  // Set today's date as default for forms
+  const today = now.toISOString().split('T')[0];
+  const m = now.getMonth() + 1;
+  if (document.getElementById('payrollMonth')) document.getElementById('payrollMonth').value = m;
+  if (document.getElementById('payrollYear')) document.getElementById('payrollYear').value = now.getFullYear();
+  if (document.getElementById('attDate')) document.getElementById('attDate').value = today;
+  if (document.getElementById('schedDate')) document.getElementById('schedDate').value = today;
+
+  // Apply role restrictions
+  applyRoleUI();
+
+  // Load dashboard
+  await loadDashboard();
+}
+
+function applyRoleUI() {
+  const role = currentUser.role;
+  // Hide admin nav for non-admins
+  if (role !== 'admin') {
+    const adminNav = document.getElementById('navAdmin');
+    if (adminNav) adminNav.style.display = 'none';
+  }
+  // Guards and commanders have restricted access
+  if (role === 'guard') {
+    document.getElementById('navClients').style.display = 'none';
+    document.getElementById('navPayroll').style.display = 'none';
+    document.getElementById('navPersonnel').style.display = 'none';
+  }
+}
+
+// ============================================================
+// PAGE NAVIGATION
+// ============================================================
+function showPage(page) {
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick')?.includes(`'${page}'`)) n.classList.add('active');
+  });
+
+  const titles = {
+    dashboard: 'Dashboard', guards: 'Guards', commanders: 'Commanders',
+    clients: 'Clients', schedule: 'Deployment Rota', attendance: 'Attendance',
+    salary: 'Salary Scale', payroll: 'Payroll', users: 'User Management'
+  };
+  document.getElementById('pageTitle').textContent = titles[page] || page;
+
+  // Load page data
+  switch(page) {
+    case 'dashboard': loadDashboard(); break;
+    case 'guards': loadGuards(); break;
+    case 'commanders': loadCommanders(); break;
+    case 'clients': loadClients(); break;
+    case 'schedule': loadSchedule(); break;
+    case 'attendance': loadAttendance(); break;
+    case 'salary': loadSalaryScale(); break;
+    case 'payroll': break;
+    case 'users': loadUsers(); break;
+  }
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+async function loadDashboard() {
+  showLoading(true);
+  const res = await api('getDashboardStats');
+  showLoading(false);
+
+  if (!res.success) { toast(res.error, 'error'); return; }
+  const d = res.data;
+
+  // Update stats - also cache them
+  const stats = { guards: d.totalGuards, commanders: d.totalCommanders, clients: d.totalClients, duty: d.onDutyToday, dayShift: d.dayShift, nightShift: d.nightShift };
+  localStorage.setItem('sgStats', JSON.stringify(stats));
+
+  document.getElementById('statGuards').textContent = d.totalGuards;
+  document.getElementById('statCommanders').textContent = d.totalCommanders;
+  document.getElementById('statClients').textContent = d.totalClients;
+  document.getElementById('statDuty').textContent = d.onDutyToday;
+  document.getElementById('statDayShift').textContent = d.dayShift;
+  document.getElementById('statNightShift').textContent = d.nightShift;
+
+  // Today's deployment table
+  const tbody = document.getElementById('todayDeployTable');
+  if (!d.todayDeployment || d.todayDeployment.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">📋</div><p>No deployments scheduled for today</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = d.todayDeployment.map(s => `
+    <tr>
+      <td>${s.GuardName || '—'}</td>
+      <td>${s.ClientName || '—'}</td>
+      <td>${badgeHtml(s.Shift, { day:'badge-day', night:'badge-night' })}</td>
+      <td>${s.CommanderName || '—'}</td>
+      <td>${badgeHtml(s.Status, { scheduled:'badge-scheduled', completed:'badge-active' })}</td>
+    </tr>`).join('');
+}
+
+// Restore cached stats on load
+function restoreCachedStats() {
+  const cached = localStorage.getItem('sgStats');
+  if (cached) {
+    const s = JSON.parse(cached);
+    document.getElementById('statGuards').textContent = s.guards || '—';
+    document.getElementById('statCommanders').textContent = s.commanders || '—';
+    document.getElementById('statClients').textContent = s.clients || '—';
+    document.getElementById('statDuty').textContent = s.duty || '—';
+    document.getElementById('statDayShift').textContent = s.dayShift || '—';
+    document.getElementById('statNightShift').textContent = s.nightShift || '—';
+  }
+}
+
+// ============================================================
+// GUARDS
+// ============================================================
+async function loadGuards() {
+  showLoading(true);
+  const res = await api('getGuards');
+  showLoading(false);
+  if (!res.success) { toast(res.error, 'error'); return; }
+
+  guardsData = res.data || [];
+  document.getElementById('guardCount').textContent = `${guardsData.length} records`;
+
+  const tbody = document.getElementById('guardTable');
+  if (!guardsData.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="icon">👮</div><p>No guards found. Add your first guard.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = guardsData.map((g, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong>${g.FullName}</strong></td>
+      <td>${g.Phone}</td>
+      <td><code style="background:var(--surface2);padding:2px 8px;border-radius:4px;font-size:12px">${g.NIN}</code></td>
+      <td>${g.Age || '—'}</td>
+      <td>${g.Gender || '—'}</td>
+      <td>${g.Residence || '—'}</td>
+      <td>${badgeHtml(g.Status, { active:'badge-active', inactive:'badge-inactive' })}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-secondary btn-sm" onclick="editGuard('${g.ID}')">Edit</button>
+          ${currentUser.role === 'admin' ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('guard','${g.ID}')">Del</button>` : ''}
+        </div>
+      </td>
+    </tr>`).join('');
+
+  // Populate schedule guard dropdown
+  updateGuardDropdowns();
+}
+
+function updateGuardDropdowns() {
+  const opts = guardsData.map(g => `<option value="${g.ID}" data-name="${g.FullName}">${g.FullName}</option>`).join('');
+  const selects = ['schedGuard', 'attGuard'];
+  selects.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<option value="">Select guard...</option>' + opts;
+  });
+}
+
+function editGuard(id) {
+  const g = guardsData.find(x => x.ID === id);
+  if (!g) return;
+  document.getElementById('guardId').value = g.ID;
+  document.getElementById('guardFullName').value = g.FullName;
+  document.getElementById('guardPhone').value = g.Phone;
+  document.getElementById('guardNin').value = g.NIN;
+  document.getElementById('guardAge').value = g.Age;
+  document.getElementById('guardGender').value = g.Gender;
+  document.getElementById('guardResidence').value = g.Residence;
+  document.querySelector('#guardModal .modal-title').textContent = '✏️ Edit Guard';
+  openModal('guardModal');
+}
+
+async function saveGuard() {
+  const id = document.getElementById('guardId').value;
+  const data = {
+    fullName: document.getElementById('guardFullName').value,
+    phone: document.getElementById('guardPhone').value,
+    nin: document.getElementById('guardNin').value,
+    age: document.getElementById('guardAge').value,
+    gender: document.getElementById('guardGender').value,
+    residence: document.getElementById('guardResidence').value
+  };
+
+  if (!data.fullName || !data.phone || !data.nin) { toast('Full name, phone, and NIN are required', 'error'); return; }
+
+  showLoading(true);
+  const res = id ? await api('updateGuard', { id, ...data }) : await api('addGuard', data);
+  showLoading(false);
+
+  if (res.success) {
+    toast(res.message, 'success');
+    closeModal('guardModal');
+    document.getElementById('guardId').value = '';
+    document.querySelector('#guardModal .modal-title').textContent = '👮 Add New Guard';
+    loadGuards();
+  } else {
+    toast(res.error, 'error');
+  }
+}
+
+// ============================================================
+// COMMANDERS
+// ============================================================
+async function loadCommanders() {
+  showLoading(true);
+  const res = await api('getCommanders');
+  showLoading(false);
+  if (!res.success) { toast(res.error, 'error'); return; }
+
+  commandersData = res.data || [];
+  document.getElementById('commanderCount').textContent = `${commandersData.length} records`;
+
+  const tbody = document.getElementById('commanderTable');
+  if (!commandersData.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="icon">🎖️</div><p>No commanders found.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = commandersData.map((c, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong>${c.FullName}</strong></td>
+      <td>${c.Phone}</td>
+      <td><code style="background:var(--surface2);padding:2px 8px;border-radius:4px;font-size:12px">${c.NIN}</code></td>
+      <td>${c.Age || '—'}</td>
+      <td>${c.Gender || '—'}</td>
+      <td>${c.Residence || '—'}</td>
+      <td>${badgeHtml(c.Status, { active:'badge-active', inactive:'badge-inactive' })}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-secondary btn-sm" onclick="editCommander('${c.ID}')">Edit</button>
+          ${currentUser.role === 'admin' ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('commander','${c.ID}')">Del</button>` : ''}
+        </div>
+      </td>
+    </tr>`).join('');
+
+  // Update commander dropdown in schedule
+  const cmdOpts = commandersData.map(c => `<option value="${c.ID}" data-name="${c.FullName}">${c.FullName}</option>`).join('');
+  const el = document.getElementById('schedCommander');
+  if (el) el.innerHTML = '<option value="">Select commander...</option>' + cmdOpts;
+}
+
+function editCommander(id) {
+  const c = commandersData.find(x => x.ID === id);
+  if (!c) return;
+  document.getElementById('commanderId').value = c.ID;
+  document.getElementById('commanderFullName').value = c.FullName;
+  document.getElementById('commanderPhone').value = c.Phone;
+  document.getElementById('commanderNin').value = c.NIN;
+  document.getElementById('commanderAge').value = c.Age;
+  document.getElementById('commanderGender').value = c.Gender;
+  document.getElementById('commanderResidence').value = c.Residence;
+  openModal('commanderModal');
+}
+
+async function saveCommander() {
+  const id = document.getElementById('commanderId').value;
+  const data = {
+    fullName: document.getElementById('commanderFullName').value,
+    phone: document.getElementById('commanderPhone').value,
+    nin: document.getElementById('commanderNin').value,
+    age: document.getElementById('commanderAge').value,
+    gender: document.getElementById('commanderGender').value,
+    residence: document.getElementById('commanderResidence').value
+  };
+
+  if (!data.fullName || !data.phone || !data.nin) { toast('Full name, phone, and NIN are required', 'error'); return; }
+
+  showLoading(true);
+  const res = id ? await api('updateCommander', { id, ...data }) : await api('addCommander', data);
+  showLoading(false);
+
+  if (res.success) {
+    toast(res.message, 'success');
+    closeModal('commanderModal');
+    document.getElementById('commanderId').value = '';
+    loadCommanders();
+  } else toast(res.error, 'error');
+}
+
+// ============================================================
+// CLIENTS
+// ============================================================
+async function loadClients() {
+  showLoading(true);
+  const res = await api('getClients');
+  showLoading(false);
+  if (!res.success) { toast(res.error, 'error'); return; }
+
+  clientsData = res.data || [];
+  document.getElementById('clientCount').textContent = `${clientsData.length} records`;
+
+  const tbody = document.getElementById('clientTable');
+  if (!clientsData.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">🏢</div><p>No clients found.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = clientsData.map((c, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong>${c.ClientName}</strong></td>
+      <td>${c.ContactPerson || '—'}</td>
+      <td>${c.Phone}</td>
+      <td>${c.Address || '—'}</td>
+      <td><span class="badge badge-scheduled">${c.GuardsRequired || 1}</span></td>
+      <td>${badgeHtml(c.Status, { active:'badge-active', inactive:'badge-inactive' })}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-secondary btn-sm" onclick="editClient('${c.ID}')">Edit</button>
+          ${currentUser.role === 'admin' ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('client','${c.ID}')">Del</button>` : ''}
+        </div>
+      </td>
+    </tr>`).join('');
+
+  // Update client dropdown
+  const opts = clientsData.map(c => `<option value="${c.ID}" data-name="${c.ClientName}">${c.ClientName}</option>`).join('');
+  const el = document.getElementById('schedClient');
+  if (el) el.innerHTML = '<option value="">Select client...</option>' + opts;
+}
+
+function editClient(id) {
+  const c = clientsData.find(x => x.ID === id);
+  if (!c) return;
+  document.getElementById('clientId').value = c.ID;
+  document.getElementById('clientName').value = c.ClientName;
+  document.getElementById('clientContact').value = c.ContactPerson;
+  document.getElementById('clientPhone').value = c.Phone;
+  document.getElementById('clientEmail').value = c.Email;
+  document.getElementById('clientAddress').value = c.Address;
+  document.getElementById('clientGuards').value = c.GuardsRequired;
+  openModal('clientModal');
+}
+
+async function saveClient() {
+  const id = document.getElementById('clientId').value;
+  const data = {
+    clientName: document.getElementById('clientName').value,
+    contactPerson: document.getElementById('clientContact').value,
+    phone: document.getElementById('clientPhone').value,
+    email: document.getElementById('clientEmail').value,
+    address: document.getElementById('clientAddress').value,
+    guardsRequired: document.getElementById('clientGuards').value
+  };
+
+  if (!data.clientName || !data.phone) { toast('Client name and phone required', 'error'); return; }
+
+  showLoading(true);
+  const res = id ? await api('updateClient', { id, ...data }) : await api('addClient', data);
+  showLoading(false);
+
+  if (res.success) {
+    toast(res.message, 'success');
+    closeModal('clientModal');
+    document.getElementById('clientId').value = '';
+    loadClients();
+  } else toast(res.error, 'error');
+}
+
+// ============================================================
+// SCHEDULE
+// ============================================================
+async function loadSchedule() {
+  // Ensure dropdowns are populated
+  if (!guardsData.length) await loadGuards();
+  if (!clientsData.length) await loadClients();
+  if (!commandersData.length) await loadCommanders();
+
+  showLoading(true);
+  const res = await api('getSchedule');
+  showLoading(false);
+  if (!res.success) { toast(res.error, 'error'); return; }
+
+  const data = res.data || [];
+  const tbody = document.getElementById('scheduleTable');
+
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">📅</div><p>No deployments scheduled.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map((s, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong>${s.GuardName}</strong></td>
+      <td>${s.ClientName}</td>
+      <td>${badgeHtml(s.Shift, { day:'badge-day', night:'badge-night' })}</td>
+      <td>${s.Date}</td>
+      <td>${s.CommanderName || '—'}</td>
+      <td>${badgeHtml(s.Status, { scheduled:'badge-scheduled', completed:'badge-active', cancelled:'badge-inactive' })}</td>
+      <td>
+        <button class="btn btn-danger btn-sm" onclick="deleteRecord('schedule','${s.ID}')">Remove</button>
+      </td>
+    </tr>`).join('');
+}
+
+async function saveSchedule() {
+  const guardSel = document.getElementById('schedGuard');
+  const clientSel = document.getElementById('schedClient');
+  const cmdSel = document.getElementById('schedCommander');
+
+  const data = {
+    guardId: guardSel.value,
+    guardName: guardSel.options[guardSel.selectedIndex]?.text || '',
+    clientId: clientSel.value,
+    clientName: clientSel.options[clientSel.selectedIndex]?.text || '',
+    shift: document.getElementById('schedShift').value,
+    date: document.getElementById('schedDate').value,
+    commanderId: cmdSel.value,
+    commanderName: cmdSel.options[cmdSel.selectedIndex]?.text || ''
+  };
+
+  if (!data.guardId || !data.clientId || !data.shift || !data.date) {
+    toast('Guard, client, shift, and date are required', 'error'); return;
+  }
+
+  showLoading(true);
+  const res = await api('addSchedule', data);
+  showLoading(false);
+
+  if (res.success) {
+    toast('Deployment scheduled!', 'success');
+    closeModal('scheduleModal');
+    loadSchedule();
+  } else toast(res.error, 'error');
+}
+
+// ============================================================
+// ATTENDANCE
+// ============================================================
+async function loadAttendance() {
+  if (!guardsData.length) await loadGuards();
+
+  showLoading(true);
+  const res = await api('getAttendance');
+  showLoading(false);
+  if (!res.success) { toast(res.error, 'error'); return; }
+
+  const data = res.data || [];
+  const tbody = document.getElementById('attendanceTable');
+
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">✅</div><p>No attendance records found.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.slice().reverse().map((a, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong>${a.GuardName}</strong></td>
+      <td>${a.Date}</td>
+      <td>${badgeHtml(a.ShiftType, { day:'badge-day', night:'badge-night' })}</td>
+      <td>${a.CheckIn || '—'}</td>
+      <td>${a.CheckOut || '—'}</td>
+      <td>${badgeHtml(a.Status, { present:'badge-present', absent:'badge-absent', late:'badge-day' })}</td>
+      <td>${a.MarkedBy || '—'}</td>
+    </tr>`).join('');
+}
+
+async function saveAttendance() {
+  const guardSel = document.getElementById('attGuard');
+  const data = {
+    guardId: guardSel.value,
+    guardName: guardSel.options[guardSel.selectedIndex]?.text || '',
+    date: document.getElementById('attDate').value,
+    shiftType: document.getElementById('attShift').value,
+    checkIn: document.getElementById('attCheckIn').value,
+    checkOut: document.getElementById('attCheckOut').value,
+    status: document.getElementById('attStatus').value
+  };
+
+  if (!data.guardId || !data.date) { toast('Guard and date are required', 'error'); return; }
+
+  showLoading(true);
+  const res = await api('markAttendance', data);
+  showLoading(false);
+
+  if (res.success) {
+    toast('Attendance marked!', 'success');
+    closeModal('attendanceModal');
+    loadAttendance();
+  } else toast(res.error, 'error');
+}
+
+// ============================================================
+// SALARY SCALE
+// ============================================================
+async function loadSalaryScale() {
+  showLoading(true);
+  const res = await api('getSalaryScale');
+  showLoading(false);
+  if (!res.success) { toast(res.error, 'error'); return; }
+
+  const data = res.data || [];
+  const tbody = document.getElementById('salaryTable');
+
+  tbody.innerHTML = data.map(s => `
+    <tr>
+      <td><strong style="text-transform:capitalize">${s.Rank}</strong></td>
+      <td>UGX ${formatNumber(s.DailyRate)}</td>
+      <td>UGX ${formatNumber(parseFloat(s.DailyRate || 0) * 26)}</td>
+      <td style="color:var(--text2);font-size:12px">${s.UpdatedAt || '—'}</td>
+    </tr>`).join('');
+}
+
+async function updateSalary() {
+  const data = {
+    rank: document.getElementById('salaryRank').value,
+    dailyRate: document.getElementById('salaryRate').value
+  };
+  if (!data.dailyRate) { toast('Daily rate required', 'error'); return; }
+
+  showLoading(true);
+  const res = await api('updateSalaryScale', data);
+  showLoading(false);
+
+  if (res.success) {
+    toast('Salary scale updated!', 'success');
+    closeModal('salaryModal');
+    loadSalaryScale();
+  } else toast(res.error, 'error');
+}
+
+// ============================================================
+// PAYROLL
+// ============================================================
+async function generatePayroll() {
+  const month = document.getElementById('payrollMonth').value;
+  const year = document.getElementById('payrollYear').value;
+
+  showLoading(true);
+  const res = await api('generatePayroll', { month, year });
+  showLoading(false);
+
+  if (res.success) {
+    toast(`Payroll generated! ${res.data.length} records created.`, 'success');
+    displayPayrollData(res.data);
+  } else toast(res.error, 'error');
+}
+
+async function viewPayroll() {
+  const month = document.getElementById('payrollMonth').value;
+  const year = document.getElementById('payrollYear').value;
+
+  showLoading(true);
+  const res = await api('getPayroll', { month, year });
+  showLoading(false);
+
+  if (res.success) {
+    displayPayrollData(res.data);
+  } else toast(res.error, 'error');
+}
+
+function displayPayrollData(data) {
+  if (!data || !data.length) {
+    document.getElementById('payrollTable').innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">📄</div><p>No payroll records found.</p></div></td></tr>`;
+    document.getElementById('payrollSummary').style.display = 'none';
+    return;
+  }
+
+  const totalDays = data.reduce((s, r) => s + parseFloat(r.DaysWorked || r.daysWorked || 0), 0);
+  const totalPay = data.reduce((s, r) => s + parseFloat(r.TotalPay || r.totalPay || 0), 0);
+
+  document.getElementById('payTotalStaff').textContent = data.length;
+  document.getElementById('payTotalDays').textContent = totalDays;
+  document.getElementById('payTotalAmount').textContent = 'UGX ' + formatNumber(totalPay);
+  document.getElementById('payrollSummary').style.display = 'grid';
+
+  document.getElementById('payrollTable').innerHTML = data.map((r, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong>${r.GuardName || r.guardName}</strong></td>
+      <td><span class="badge badge-${r.Rank || r.rank}">${r.Rank || r.rank}</span></td>
+      <td>${r.Month || r.month}/${r.Year || r.year}</td>
+      <td>${r.DaysWorked || r.daysWorked}</td>
+      <td>UGX ${formatNumber(r.DailyRate || r.dailyRate)}</td>
+      <td><strong style="color:var(--green)">UGX ${formatNumber(r.TotalPay || r.totalPay)}</strong></td>
+    </tr>`).join('');
+}
+
+// ============================================================
+// USERS
+// ============================================================
+async function loadUsers() {
+  showLoading(true);
+  const res = await api('getUsers');
+  showLoading(false);
+  if (!res.success) { toast(res.error, 'error'); return; }
+
+  const data = res.data || [];
+  const tbody = document.getElementById('userTable');
+
+  tbody.innerHTML = data.map((u, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><code style="background:var(--surface2);padding:2px 8px;border-radius:4px;font-size:12px">${u.Username}</code></td>
+      <td>${u.FullName}</td>
+      <td>${u.Email || '—'}</td>
+      <td>${badgeHtml(u.Role, { admin:'badge-admin', manager:'badge-manager', commander:'badge-commander', guard:'badge-guard' })}</td>
+      <td>${badgeHtml(u.Status, { active:'badge-active', inactive:'badge-inactive' })}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-danger btn-sm" onclick="toggleUserStatus('${u.ID}','${u.Status}')">
+            ${u.Status === 'active' ? 'Deactivate' : 'Activate'}
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+async function createUser() {
+  const data = {
+    fullName: document.getElementById('newUserFullName').value,
+    username: document.getElementById('newUsername').value,
+    email: document.getElementById('newUserEmail').value,
+    password: document.getElementById('newPassword').value,
+    role: document.getElementById('newUserRole').value
+  };
+
+  if (!data.fullName || !data.username || !data.password) {
+    toast('Full name, username, and password are required', 'error'); return;
+  }
+
+  showLoading(true);
+  const res = await api('createUser', data);
+  showLoading(false);
+
+  if (res.success) {
+    toast('User account created!', 'success');
+    closeModal('userModal');
+    loadUsers();
+  } else toast(res.error, 'error');
+}
+
+async function toggleUserStatus(id, currentStatus) {
+  const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+  showLoading(true);
+  const res = await api('updateUser', { id, status: newStatus });
+  showLoading(false);
+  if (res.success) { toast(`User ${newStatus}`, 'success'); loadUsers(); }
+  else toast(res.error, 'error');
+}
+
+// ============================================================
+// DELETE RECORDS
+// ============================================================
+async function deleteRecord(type, id) {
+  if (!confirm(`Delete this ${type} record? This cannot be undone.`)) return;
+
+  const actions = { guard:'deleteGuard', commander:'deleteCommander', client:'deleteClient', schedule:'deleteSchedule' };
+  showLoading(true);
+  const res = await api(actions[type], { id });
+  showLoading(false);
+
+  if (res.success) {
+    toast(`${type} deleted`, 'success');
+    const loaders = { guard:loadGuards, commander:loadCommanders, client:loadClients, schedule:loadSchedule };
+    if (loaders[type]) loaders[type]();
+  } else toast(res.error, 'error');
+}
+
+// ============================================================
+// AUTO-RESTORE SESSION
+// ============================================================
+window.addEventListener('load', async () => {
+  restoreCachedStats(); // Show cached stats immediately
+
+  const token = localStorage.getItem('sgToken');
+  const user = localStorage.getItem('sgUser');
+
+  if (token && user) {
+    showLoading(true);
+    const res = await api('validateSession', { token });
+    showLoading(false);
+
+    if (res.success) {
+      currentUser = JSON.parse(user);
+      initApp();
+    } else {
+      localStorage.removeItem('sgToken');
+      localStorage.removeItem('sgUser');
+    }
+  }
+});
+</script>
+</body>
+</html>
