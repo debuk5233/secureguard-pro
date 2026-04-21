@@ -1437,8 +1437,8 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 // ============================================================
 // CONFIGURATION
 // ============================================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbz8Qun0SlmYV4jG6QJg0Z1PT-mUeYbSBa_PrO4gQVUwuRGPh3abqc3MiqLcTO8bfe2B/exec';
-
+const API_URL = 'https://script.google.com/macros/s/AKfycbyVTmjiewLiG--cgO_Rml5AQM5TiKAuMIoH9MlN7ggnLW6EeUOYmrJJusCa8ixTZ3LM/exec'; //old
+// https://script.google.com/macros/s/AKfycbz8Qun0SlmYV4jG6QJg0Z1PT-mUeYbSBa_PrO4gQVUwuRGPh3abqc3MiqLcTO8bfe2B/exec //new
 // ============================================================
 // STATE
 // ============================================================
@@ -1456,16 +1456,24 @@ async function api(action, params = {}) {
   const payload = { action, ...params };
   if (token) payload.token = token;
 
+  // Build query string — Apps Script requires GET with URL params to avoid CORS
+  const qs = Object.entries(payload)
+    .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v))
+    .join('&');
+  const url = API_URL + '?' + qs;
+
   try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    return await res.json();
+    const res = await fetch(url, { method: 'GET', redirect: 'follow' });
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      console.error('Bad JSON:', text);
+      return { success: false, error: 'Server returned invalid response.' };
+    }
   } catch (err) {
     console.error('API Error:', err);
-    return { success: false, error: 'Network error. Check connection.' };
+    return { success: false, error: 'Failed to reach server. Check your Apps Script URL and deployment.' };
   }
 }
 
